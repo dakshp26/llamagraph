@@ -96,16 +96,82 @@ Most local LLM tools give you a chat window. Most pipeline tools require writing
 
 ## Node types
 
-| Node | Role |
-|------|------|
-| **Input** | Entry point — feeds text or data into the pipeline |
-| **Prompt** | Jinja-style template that injects upstream values into a prompt |
-| **Transform** | Regex or field-extract operations on text |
-| **Condition** | Branches the graph based on a rule — true/false routing |
-| **LLM** | Calls a local Ollama model and streams the response |
-| **Output** | Terminal node — displays final results |
-
 Nodes are composable: connect them in any order the DAG allows, fan out to parallel branches, or converge multiple streams into one.
+
+<details>
+<summary><strong>Input</strong> — entry point, feeds text or data into the pipeline</summary>
+
+The Input node is where every pipeline begins. You type (or paste) a value directly into the node; that value becomes the root output that downstream nodes receive.
+
+- Accepts any free-form text — a question, a document, a JSON snippet, a list
+- A pipeline can have multiple Input nodes to feed independent branches
+- No upstream connections are allowed; Input nodes are always sources, never sinks
+- The value is stored in the saved `.llamagraph.json` file so pipelines are self-contained and replayable
+
+</details>
+
+<details>
+<summary><strong>Prompt</strong> — Jinja-style template that injects upstream values into a prompt</summary>
+
+The Prompt node assembles a final prompt string by interpolating values from connected upstream nodes into a template. It is the primary way to craft LLM instructions dynamically.
+
+- Uses `{{ variable_name }}` syntax (Jinja2-style) to reference upstream node outputs by name
+- Multiple upstream nodes can be referenced in a single template
+- Supports multi-line templates — useful for system prompts, few-shot examples, or structured instructions
+- The rendered string is passed downstream as-is; connect it to an LLM node to execute it, or to a Transform node for further processing
+- Template rendering happens on the backend so the final prompt is never partially sent
+
+</details>
+
+<details>
+<summary><strong>Transform</strong> — regex or field-extract operations on text</summary>
+
+The Transform node manipulates text before or after an LLM call without invoking a model. It is useful for cleaning output, extracting structured values, or reshaping data for the next stage.
+
+- **Regex extract** — applies a regular expression and emits the first capture group (or the full match)
+- **Field extract** — parses key-value output (e.g. `Label: value`) and pulls out a named field
+- Operates entirely on the backend — no model call, no latency beyond string processing
+- Can be chained: run a Transform after an LLM node to normalize its output before feeding it into a Condition or another LLM node
+
+</details>
+
+<details>
+<summary><strong>Condition</strong> — branches the graph based on a rule, true/false routing</summary>
+
+The Condition node evaluates its upstream input against a rule and routes execution down either a **true** branch or a **false** branch. Branches that are not taken are marked as skipped — their nodes are bypassed entirely rather than receiving empty input.
+
+- Rules are simple string comparisons: `equals`, `contains`, `starts with`, `ends with`, or `matches regex`
+- Each Condition node has exactly two outgoing edges, labelled `true` and `false`
+- Skipped branches are visible in the UI with a distinct status so you can see exactly which path was taken
+- Conditions can be nested: the output of one branch can feed another Condition node for multi-level routing
+- The executor tracks skipped node IDs and propagates the skip state through all transitive dependents
+
+</details>
+
+<details>
+<summary><strong>LLM</strong> — calls a local Ollama model and streams the response</summary>
+
+The LLM node sends its upstream input to a locally running Ollama model and streams the response token by token back to the frontend via Server-Sent Events.
+
+- Select any model that Ollama has pulled (`ollama pull <model>`) — the node lists available models at runtime
+- Streaming is incremental: tokens appear in the UI as they are generated, not after the full response finishes
+- The backend wraps the Ollama HTTP API; the frontend never calls Ollama directly
+- LLM nodes can be chained — pipe one model's output into a Prompt node, then into a second LLM node for multi-stage reasoning
+- If Ollama is unreachable, the node surfaces a clear error rather than hanging
+
+</details>
+
+<details>
+<summary><strong>Output</strong> — terminal node, displays final results</summary>
+
+The Output node is the sink of the pipeline. It receives the final value from its upstream node and renders it in the canvas panel.
+
+- A pipeline can have multiple Output nodes — useful when parallel branches each produce a result
+- The displayed value is the raw string passed by the upstream node (LLM response, transformed text, etc.)
+- Output nodes have no outgoing edges; they are always leaves in the DAG
+- Results persist in the UI until the next run so you can inspect and copy them after execution completes
+
+</details>
 
 ---
 

@@ -166,13 +166,6 @@ uv run pytest
 
 **Good first issues:** look for the `good first issue` label in the issue tracker.
 
-## Backend: uv (optional reference)
-
-- **Install** [uv](https://docs.astral.sh/uv/getting-started/#installation) once (standalone installer, Homebrew, pip, etc.).
-- **Sync** from `backend/`: `uv sync` for runtime deps, or `uv sync --all-groups` to include dev tools (ruff, pytest, httpx).
-- **Add a dependency**: edit `pyproject.toml` (or `uv add <package>`), then `uv lock` if you need to refresh the lockfile.
-- **Run** without manual activation: `uv run uvicorn main:app --reload --port 8000` from `backend/`, or use `pnpm dev` from the repo root.
-
 ## License
 
 MIT — see [LICENSE](LICENSE).

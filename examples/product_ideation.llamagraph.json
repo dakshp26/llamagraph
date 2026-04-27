@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "savedAt": "2026-04-23T14:58:32.224Z",
+  "nodes": [
+    {
+      "id": "bfced592-c96e-42e0-93e1-fa5252daadba",
+      "type": "input",
+      "position": {
+        "x": 557.5825844944186,
+        "y": 99.2241349243597
+      },
+      "data": {
+        "value": "a home office for small apartments"
+      },
+      "measured": {
+        "width": 233,
+        "height": 161
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
+      "type": "prompt",
+      "position": {
+        "x": 554.6765624959938,
+        "y": 317.34705606290237
+      },
+      "data": {
+        "template": "Summarize this product idea into three key value propositions and a target audience profile: {{productConcept}}."
+      },
+      "measured": {
+        "width": 240,
+        "height": 217
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
+      "type": "llm",
+      "position": {
+        "x": 546.5953929737365,
+        "y": 589.3439780015752
+      },
+      "data": {
+        "model": "gemma3:1b",
+        "temperature": 0.7,
+        "systemPrompt": ""
+      },
+      "measured": {
+        "width": 260,
+        "height": 273
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "13f77513-cf64-4dc1-a909-f5c79829b740",
+      "type": "prompt",
+      "position": {
+        "x": 215.21543580035842,
+        "y": 871.5457737780324
+      },
+      "data": {
+        "template": "Using the value propositions from Step 1, write a 30-second elevator pitch and three punchy social media captions.\n\nThe value Propostions can be found from this product explanations:\n\n{{valuePropositions}}"
+      },
+      "measured": {
+        "width": 240,
+        "height": 217
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
+      "type": "prompt",
+      "position": {
+        "x": 936.562134463944,
+        "y": 866.2890211483873
+      },
+      "data": {
+        "template": "Based on the target audience from Step 1, list the top 5 must-have features for the MVP (Minimum Viable Product). The target audience from step 1 can be found from this product explaination: {{productExplaination}}"
+      },
+      "measured": {
+        "width": 240,
+        "height": 217
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
+      "type": "llm",
+      "position": {
+        "x": 929.6224098366511,
+        "y": 1139.062389007322
+      },
+      "data": {
+        "model": "gemma3:1b",
+        "temperature": 0.7,
+        "systemPrompt": ""
+      },
+      "measured": {
+        "width": 260,
+        "height": 273
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
+      "type": "llm",
+      "position": {
+        "x": 207.33124164794404,
+        "y": 1174.1433104125747
+      },
+      "data": {
+        "model": "gemma3:1b",
+        "temperature": 0.7,
+        "systemPrompt": ""
+      },
+      "measured": {
+        "width": 260,
+        "height": 273
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "a55c6dfc-7882-4adf-9f0c-1aae06e32506",
+      "type": "output",
+      "position": {
+        "x": 953.2664549003408,
+        "y": 1461.2500968934676
+      },
+      "data": {
+        "lastRunAt": "2026-04-23T14:48:36.456Z"
+      },
+      "measured": {
+        "width": 233,
+        "height": 215
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "fb381b40-96cc-44fb-b8d1-137f2846045a",
+      "type": "output",
+      "position": {
+        "x": 213.69360082391302,
+        "y": 1476.803490133914
+      },
+      "data": {
+        "lastRunAt": "2026-04-23T14:48:36.456Z"
+      },
+      "measured": {
+        "width": 233,
+        "height": 215
+      },
+      "selected": false,
+      "dragging": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "bfced592-c96e-42e0-93e1-fa5252daadba",
+      "sourceHandle": null,
+      "target": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
+      "targetHandle": "productConcept",
+      "id": "245d1675-fa39-4688-a11b-c7fd11941a15"
+    },
+    {
+      "source": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
+      "sourceHandle": null,
+      "target": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
+      "targetHandle": null,
+      "id": "0ef04fe8-e4e7-4e18-aa4b-2e54df5c3d2e"
+    },
+    {
+      "source": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
+      "sourceHandle": null,
+      "target": "13f77513-cf64-4dc1-a909-f5c79829b740",
+      "targetHandle": "valuePropositions",
+      "id": "9744ef82-4f93-4d04-99d7-16e9940d78aa"
+    },
+    {
+      "source": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
+      "sourceHandle": null,
+      "target": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
+      "targetHandle": "productExplaination",
+      "id": "19575d10-36b4-41b0-872e-76b85acc76c0"
+    },
+    {
+      "source": "13f77513-cf64-4dc1-a909-f5c79829b740",
+      "sourceHandle": null,
+      "target": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
+      "targetHandle": null,
+      "id": "45868f86-1c76-4e4d-86a8-958ef6443788"
+    },
+    {
+      "source": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
+      "sourceHandle": null,
+      "target": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
+      "targetHandle": null,
+      "id": "b4ae2935-0bd1-4a74-9192-6165544441fa"
+    },
+    {
+      "source": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
+      "sourceHandle": null,
+      "target": "fb381b40-96cc-44fb-b8d1-137f2846045a",
+      "targetHandle": null,
+      "id": "8bf90dde-c9b5-44bc-b40a-615321f81324"
+    },
+    {
+      "source": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
+      "sourceHandle": null,
+      "target": "a55c6dfc-7882-4adf-9f0c-1aae06e32506",
+      "targetHandle": null,
+      "id": "de2d15a9-9425-40cc-8aeb-5cb9b0d7e648"
+    }
+  ],
+  "viewport": {
+    "x": 307.236187043957,
+    "y": -46.64553056835223,
+    "zoom": 0.5743491774985177
+  }
+}

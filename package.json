@@ -1,0 +1,10 @@
+{
+  "name": "llamagraph",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter frontend dev\" \"backend\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --reload --port 8000\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

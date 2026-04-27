@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="LlamaGraph">
+  <path
+    fill="none"
+    stroke="#16c784"
+    stroke-width="2"
+    stroke-linejoin="round"
+    d="M16 4 26.392 10 26.392 22 16 28 5.608 22 5.608 10Z"
+  />
+</svg>

@@ -1,0 +1,11 @@
+packages:
+  - 'frontend'
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+overrides:
+  postcss@<8.5.10: '>=8.5.10'
+
+settings:
+  minimumReleaseAge: "7200"

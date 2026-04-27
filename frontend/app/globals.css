@@ -1,0 +1,281 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Panel chrome */
+  --panel-bg: #0c0f0e;
+  --panel-card: #161b19;
+  --panel-card-hover: #1e2520;
+  --panel-border: #263028;
+  --panel-border-hover: #38463e;
+  --panel-text: #f2f2f2;
+  --panel-text-dim: #b0b8b4;
+  --panel-text-muted: #6e8078;
+  --panel-accent: #16c784;
+  --panel-accent-glow: rgba(22, 199, 132, 0.1);
+  --panel-accent-border: rgba(22, 199, 132, 0.35);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Panel button variants ─────────────────────────────── */
+.panel-btn {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 5px 11px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.panel-btn-ghost {
+  border: 1px solid var(--panel-border);
+  color: var(--panel-text-dim);
+  background: transparent;
+}
+.panel-btn-ghost:hover:not(:disabled) {
+  border-color: var(--panel-border-hover);
+  color: var(--panel-text);
+  background: var(--panel-card);
+}
+
+.panel-btn-accent {
+  border: 1px solid var(--panel-accent);
+  color: var(--panel-accent);
+  background: transparent;
+}
+.panel-btn-accent:hover:not(:disabled) {
+  background: var(--panel-accent-glow);
+}
+.panel-btn-accent:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ── Panel section label ───────────────────────────────── */
+.panel-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--panel-text-dim);
+}
+
+/* ── Separator rule with label ─────────────────────────── */
+.panel-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--panel-text-muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.panel-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--panel-border);
+}
+
+/* ── Node item in toolbar ──────────────────────────────── */
+.toolbar-node-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 8px 10px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--panel-text);
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  position: relative;
+}
+.toolbar-node-btn:hover {
+  background: var(--panel-card-hover);
+  border-color: var(--panel-border-hover);
+}
+.toolbar-node-btn:focus-visible {
+  outline: 1px solid var(--panel-accent);
+  outline-offset: 1px;
+}
+
+.toolbar-node-btn-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--panel-text-dim);
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  overflow: hidden;
+}
+.toolbar-node-btn-collapsed:hover {
+  background: var(--panel-card-hover);
+  border-color: var(--panel-border-hover);
+  color: var(--panel-text);
+}
+.toolbar-node-btn-collapsed:focus-visible {
+  outline: 1px solid var(--panel-accent);
+  outline-offset: 1px;
+}
+
+/* ── Debug node list item ──────────────────────────────── */
+.debug-node-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 8px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  color: var(--panel-text-dim);
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: left;
+  gap: 7px;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.debug-node-item:hover {
+  background: var(--panel-card-hover);
+  border-color: var(--panel-border-hover);
+  color: var(--panel-text);
+}
+.debug-node-item.selected {
+  color: var(--panel-accent);
+  background: var(--panel-accent-glow);
+  border-color: var(--panel-accent-border);
+}
+.debug-node-item:focus-visible {
+  outline: 1px solid var(--panel-accent);
+  outline-offset: 1px;
+}
+
+/* ── IO block ──────────────────────────────────────────── */
+.io-block {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  padding: 10px 12px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--panel-text);
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+/* ── collapse/expand toggle ────────────────────────────── */
+.panel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  color: var(--panel-text-muted);
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.panel-toggle:hover {
+  color: var(--panel-text-dim);
+  background: var(--panel-card-hover);
+  border-color: var(--panel-border-hover);
+}
+.panel-toggle:focus-visible {
+  outline: 1px solid var(--panel-accent);
+  outline-offset: 1px;
+}
+
+@keyframes flowai-ring-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.flowai-running-ring {
+  animation: flowai-ring-pulse 1.2s ease-in-out infinite;
+}
+
+/*
+ * XY Flow defaults: 150px width + centered text for built-in input/output nodes.
+ * Custom cards use min-width ~220px; if the wrapper stays 150px, content overflows
+ * right while selection/handles use the narrow box. Force the wrapper to shrink-wrap.
+ */
+.react-flow .react-flow__node-input,
+.react-flow .react-flow__node-output,
+.react-flow .react-flow__node-default {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  width: fit-content !important;
+  max-width: none !important;
+  min-width: unset !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  text-align: start !important;
+}
+
+.react-flow .react-flow__node-input.selectable:hover,
+.react-flow .react-flow__node-output.selectable:hover,
+.react-flow .react-flow__node-default.selectable:hover,
+.react-flow .react-flow__node-input.selectable.selected,
+.react-flow .react-flow__node-input.selectable:focus,
+.react-flow .react-flow__node-input.selectable:focus-visible,
+.react-flow .react-flow__node-output.selectable.selected,
+.react-flow .react-flow__node-output.selectable:focus,
+.react-flow .react-flow__node-output.selectable:focus-visible,
+.react-flow .react-flow__node-default.selectable.selected,
+.react-flow .react-flow__node-default.selectable:focus,
+.react-flow .react-flow__node-default.selectable:focus-visible {
+  box-shadow: none;
+}

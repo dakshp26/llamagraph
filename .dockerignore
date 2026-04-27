@@ -1,0 +1,18 @@
+# Build context is repo root; pnpm + COPY order must not clobber the deps stage
+node_modules
+**/node_modules
+
+**/.next
+.next
+
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+
+# Python (backend) — smaller context, no effect on Node resolution
+.venv
+**/__pycache__
+**/*.pyc

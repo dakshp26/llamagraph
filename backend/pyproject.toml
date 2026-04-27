@@ -1,0 +1,27 @@
+[project]
+name = "llamagraph-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "ollama",
+    "pydantic",
+]
+
+[dependency-groups]
+dev = ["httpx", "pytest", "ruff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.uv]
+package = false
+exclude-newer = "5 days"

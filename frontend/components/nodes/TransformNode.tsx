@@ -1,11 +1,9 @@
 "use client";
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { useMemo } from "react";
 
 import { NodeStatusBadge } from "@/components/ui/NodeStatusBadge";
 import { NodeValidationBadge } from "@/components/ui/NodeValidationBadge";
-import { previewTransformExtract, previewTransformTemplate } from "@/lib/transformPreview";
 import {
   nodeDebugInspectClass,
   nodeExecutionRingClass,
@@ -19,13 +17,6 @@ export function TransformNode({ id, data, selected }: NodeProps<FlowNode>) {
   const d = data as TransformNodeData;
   const updateNodeData = usePipelineStore((s) => s.updateNodeData);
   const nodeStatus = useExecutionStore((s) => s.nodeStatuses[id]);
-
-  const preview = useMemo(() => {
-    if (d.mode === "template") {
-      return previewTransformTemplate(d.template);
-    }
-    return previewTransformExtract(d.path);
-  }, [d.mode, d.path, d.template]);
 
   return (
     <div
@@ -87,11 +78,6 @@ export function TransformNode({ id, data, selected }: NodeProps<FlowNode>) {
           />
         </div>
       )}
-
-      <div className="mt-2 rounded border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-700">
-        <div className="font-medium text-neutral-600">Preview</div>
-        <div className="mt-0.5 whitespace-pre-wrap break-words font-mono text-[11px]">{preview}</div>
-      </div>
 
       <Handle
         className="!h-3 !w-3 !border-2 !border-white !bg-cyan-600"

@@ -9,7 +9,7 @@ import { nodeColor } from "@/lib/nodeConfig";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
 import type { FlowNode } from "@/types/pipeline";
 
-import { NodeParamsEditor } from "./NodeIoPane";
+import { InfoTip, NodeParamsEditor, OUTPUT_TIP } from "./NodeIoPane";
 
 function ExpandOutputColumn({
   node,
@@ -72,8 +72,9 @@ function ExpandOutputColumn({
     <div className="flex min-h-0 flex-1 flex-col" style={{ gap: 6 }}>
       <div className="flex min-h-0 flex-1 flex-col" style={{ gap: 6 }}>
         <div className="flex shrink-0 items-center justify-between gap-2">
-          <div className="panel-rule" style={{ marginBottom: 0, flex: 1 }}>
-            output
+          <div className="panel-rule" style={{ marginBottom: 0, flex: 1, display: "flex", alignItems: "center", gap: 4 }}>
+            <span>output</span>
+            <InfoTip message={OUTPUT_TIP} />
           </div>
           <div className="flex shrink-0 gap-1" role="tablist" aria-label="Output view mode">
             <button

@@ -1,6 +1,3 @@
-/** Fixed sample used only for the Transform node's live preview UI. */
-export const TRANSFORM_SAMPLE_JSON = '{"user":{"name":"Alice"},"items":[{"id":1}]}';
-
 const TEMPLATE_INPUT_RE = /\{\{\s*input\s*\}\}/g;
 
 function getByPath(obj: unknown, path: string): unknown {
@@ -39,24 +36,42 @@ function formatExtracted(val: unknown): string {
   return String(val);
 }
 
-/** Preview extract mode using a fixed sample JSON document. */
-export function previewTransformExtract(path: string): string {
+function unwrapJsonFence(raw: string): string {
+  const s = raw.trim();
+  if (!s.startsWith("```")) return s;
+  const lines = s.split("\n");
+  if (lines[0].trimStart().startsWith("```")) lines.shift();
+  while (lines.length > 0 && lines[lines.length - 1].trim() === "") lines.pop();
+  if (lines.length > 0 && lines[lines.length - 1].trim().startsWith("```")) lines.pop();
+  return lines.join("\n").trim();
+}
+
+/**
+ * Preview extract mode using the provided upstream string.
+ * Returns blank when upstream is empty or not yet available.
+ */
+export function previewTransformExtract(path: string, upstream: string): string {
+  if (!upstream.trim()) return "";
   const p = path.trim();
+  let doc: unknown;
   try {
-    const doc = JSON.parse(TRANSFORM_SAMPLE_JSON) as unknown;
-    if (!p) {
-      return formatExtracted(doc);
-    }
-    const val = getByPath(doc, p);
-    return formatExtracted(val);
+    doc = JSON.parse(unwrapJsonFence(upstream));
   } catch {
-    return "No preview — check the path against the sample JSON.";
+    return "No preview — upstream value is not valid JSON.";
+  }
+  if (!p) return formatExtracted(doc);
+  try {
+    return formatExtracted(getByPath(doc, p));
+  } catch {
+    return "No preview — path not found in JSON.";
   }
 }
 
-const SAMPLE_TEMPLATE_INPUT = "World";
-
-/** Preview template mode by substituting {{input}} with a fixed sample. */
-export function previewTransformTemplate(template: string): string {
-  return template.replace(TEMPLATE_INPUT_RE, SAMPLE_TEMPLATE_INPUT);
+/**
+ * Preview template mode by substituting {{input}} with the upstream string.
+ * Returns blank when upstream is empty or not yet available.
+ */
+export function previewTransformTemplate(template: string, upstream: string): string {
+  if (!upstream.trim()) return "";
+  return template.replace(TEMPLATE_INPUT_RE, upstream);
 }

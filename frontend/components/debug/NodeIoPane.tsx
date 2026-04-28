@@ -73,18 +73,27 @@ const labelStyle: CSSProperties = {
   marginTop: 6,
 };
 
-function NodeParamsEditor({ node }: { node: FlowNode }) {
+/** Debug panel node parameter fields. Pass `inputIdSuffix` when another copy mounts (e.g. expand overlay) to keep ids unique. */
+export function NodeParamsEditor({
+  node,
+  inputIdSuffix = "",
+}: {
+  node: FlowNode;
+  /** Appended to form control ids (e.g. `-expand`) */
+  inputIdSuffix?: string;
+}) {
   const updateNodeData = usePipelineStore((s) => s.updateNodeData);
   const ollamaModels = useExecutionStore((s) => s.ollamaModels);
   const { id, type, data } = node;
+  const sid = `${id}${inputIdSuffix}`;
 
   if (type === "input") {
     const d = data as InputNodeData;
     return (
       <div>
-        <label style={labelStyle} htmlFor={`dbg-input-value-${id}`}>value</label>
+        <label style={labelStyle} htmlFor={`dbg-input-value-${sid}`}>value</label>
         <textarea
-          id={`dbg-input-value-${id}`}
+          id={`dbg-input-value-${sid}`}
           rows={4}
           style={{ ...inputStyle, resize: "vertical" }}
           value={d.value}
@@ -98,9 +107,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
     const d = data as PromptNodeData;
     return (
       <div>
-        <label style={labelStyle} htmlFor={`dbg-prompt-tpl-${id}`}>template</label>
+        <label style={labelStyle} htmlFor={`dbg-prompt-tpl-${sid}`}>template</label>
         <textarea
-          id={`dbg-prompt-tpl-${id}`}
+          id={`dbg-prompt-tpl-${sid}`}
           rows={5}
           style={{ ...inputStyle, resize: "vertical" }}
           value={d.template}
@@ -125,9 +134,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
         </select>
         {d.mode === "extract" ? (
           <>
-            <label style={labelStyle} htmlFor={`dbg-tf-path-${id}`}>dot path</label>
+            <label style={labelStyle} htmlFor={`dbg-tf-path-${sid}`}>dot path</label>
             <input
-              id={`dbg-tf-path-${id}`}
+              id={`dbg-tf-path-${sid}`}
               style={inputStyle}
               value={d.path}
               onChange={(e) => updateNodeData(id, { path: e.target.value })}
@@ -135,9 +144,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
           </>
         ) : (
           <>
-            <label style={labelStyle} htmlFor={`dbg-tf-tpl-${id}`}>template</label>
+            <label style={labelStyle} htmlFor={`dbg-tf-tpl-${sid}`}>template</label>
             <textarea
-              id={`dbg-tf-tpl-${id}`}
+              id={`dbg-tf-tpl-${sid}`}
               rows={3}
               style={{ ...inputStyle, resize: "vertical" }}
               value={d.template}
@@ -153,9 +162,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
     const d = data as ConditionNodeData;
     return (
       <div>
-        <label style={labelStyle} htmlFor={`dbg-cond-pat-${id}`}>pattern</label>
+        <label style={labelStyle} htmlFor={`dbg-cond-pat-${sid}`}>pattern</label>
         <input
-          id={`dbg-cond-pat-${id}`}
+          id={`dbg-cond-pat-${sid}`}
           style={inputStyle}
           value={d.pattern}
           onChange={(e) => updateNodeData(id, { pattern: e.target.value })}
@@ -170,9 +179,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
       d.model && !ollamaModels.includes(d.model) ? [d.model, ...ollamaModels] : ollamaModels;
     return (
       <div>
-        <label style={labelStyle} htmlFor={`dbg-llm-model-${id}`}>model</label>
+        <label style={labelStyle} htmlFor={`dbg-llm-model-${sid}`}>model</label>
         <select
-          id={`dbg-llm-model-${id}`}
+          id={`dbg-llm-model-${sid}`}
           style={inputStyle}
           value={d.model}
           onChange={(e) => updateNodeData(id, { model: e.target.value })}
@@ -184,11 +193,11 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
           )}
         </select>
 
-        <label style={labelStyle} htmlFor={`dbg-llm-temp-${id}`}>
+        <label style={labelStyle} htmlFor={`dbg-llm-temp-${sid}`}>
           temperature — {d.temperature.toFixed(1)}
         </label>
         <input
-          id={`dbg-llm-temp-${id}`}
+          id={`dbg-llm-temp-${sid}`}
           type="range"
           min={0}
           max={1}
@@ -198,9 +207,9 @@ function NodeParamsEditor({ node }: { node: FlowNode }) {
           onChange={(e) => updateNodeData(id, { temperature: Number(e.target.value) })}
         />
 
-        <label style={labelStyle} htmlFor={`dbg-llm-sys-${id}`}>system prompt</label>
+        <label style={labelStyle} htmlFor={`dbg-llm-sys-${sid}`}>system prompt</label>
         <textarea
-          id={`dbg-llm-sys-${id}`}
+          id={`dbg-llm-sys-${sid}`}
           rows={3}
           style={{ ...inputStyle, resize: "vertical" }}
           value={d.systemPrompt}

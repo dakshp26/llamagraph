@@ -12,6 +12,7 @@ describe("pipelineStore", () => {
       edges: [],
       viewport: { x: 0, y: 0, zoom: 1 },
       loadVersion: 0,
+      debugIoExpandGeneration: 0,
     });
   });
 
@@ -53,6 +54,16 @@ describe("pipelineStore", () => {
     expect(nodes.map((n) => n.id)).toEqual(["b"]);
     expect(edges).toHaveLength(0);
   });
+
+  it("focusNodeAndExpandDebugIo selects that node and bumps debugIoExpandGeneration", () => {
+    usePipelineStore.getState().addNode("input", { x: 0, y: 0 });
+    const id = usePipelineStore.getState().nodes[0]!.id;
+    expect(usePipelineStore.getState().debugIoExpandGeneration).toBe(0);
+    usePipelineStore.getState().focusNodeAndExpandDebugIo(id);
+    const s = usePipelineStore.getState();
+    expect(s.nodes[0]?.selected).toBe(true);
+    expect(s.debugIoExpandGeneration).toBe(1);
+  });
 });
 
 describe("pipelineStore import path", () => {
@@ -84,6 +95,7 @@ describe("pipelineStore import path", () => {
       edges: initialEdges,
       viewport: initialViewport,
       loadVersion: 3,
+      debugIoExpandGeneration: 0,
     });
   });
 

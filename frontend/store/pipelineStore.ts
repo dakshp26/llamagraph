@@ -38,6 +38,10 @@ export interface PipelineState {
   loadPipeline: (file: PipelineFile) => void;
   /** Select exactly one node (debug panel + canvas sync). */
   focusNode: (id: string) => void;
+  /** Select node and open expanded debug I/O dialog (incremented for DebugPanel subscription). */
+  focusNodeAndExpandDebugIo: (id: string) => void;
+  /** Bumped each time {@link focusNodeAndExpandDebugIo} runs; DebugPanel opens overlay when it changes. */
+  debugIoExpandGeneration: number;
 }
 
 export const usePipelineStore = create<PipelineState>((set) => ({
@@ -45,6 +49,7 @@ export const usePipelineStore = create<PipelineState>((set) => ({
   edges: [],
   viewport: defaultViewport,
   loadVersion: 0,
+  debugIoExpandGeneration: 0,
 
   onNodesChange: (changes) => {
     set((s) => ({ nodes: applyNodeChanges(changes, s.nodes) }));
@@ -110,6 +115,13 @@ export const usePipelineStore = create<PipelineState>((set) => ({
   focusNode: (id) => {
     set((s) => ({
       nodes: s.nodes.map((n) => ({ ...n, selected: n.id === id })),
+    }));
+  },
+
+  focusNodeAndExpandDebugIo: (id) => {
+    set((s) => ({
+      nodes: s.nodes.map((n) => ({ ...n, selected: n.id === id })),
+      debugIoExpandGeneration: s.debugIoExpandGeneration + 1,
     }));
   },
 }));

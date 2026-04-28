@@ -244,6 +244,125 @@ body {
   animation: flowai-ring-pulse 1.2s ease-in-out infinite;
 }
 
+/* ── Debug panel: expanded I/O dialog ───────────────────── */
+.debug-io-expand-dialog {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--panel-accent-border);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  color: var(--panel-text);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+.debug-io-expand-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+}
+.debug-io-expand-tab {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  padding: 4px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--panel-text-muted);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.debug-io-expand-tab:hover {
+  border-color: var(--panel-border-hover);
+  color: var(--panel-text-dim);
+}
+.debug-io-expand-tab.active {
+  border-color: var(--panel-accent-border);
+  color: var(--panel-accent);
+  background: var(--panel-accent-glow);
+}
+.debug-io-expand-tab:focus-visible {
+  outline: 1px solid var(--panel-accent);
+  outline-offset: 1px;
+}
+.debug-io-expand-out {
+  min-height: min(48vh, 420px);
+}
+.debug-md-preview {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--panel-text);
+}
+.debug-md-preview :where(h1, h2, h3) {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5em;
+  color: var(--panel-text);
+}
+.debug-md-preview h1 {
+  font-size: 1.2rem;
+}
+.debug-md-preview h2 {
+  font-size: 1.05rem;
+}
+.debug-md-preview h3 {
+  font-size: 1rem;
+}
+.debug-md-preview p {
+  margin: 0 0 0.75em;
+}
+.debug-md-preview p:last-child {
+  margin-bottom: 0;
+}
+.debug-md-preview ul,
+.debug-md-preview ol {
+  margin: 0 0 0.75em;
+  padding-left: 1.35em;
+}
+.debug-md-preview li {
+  margin-bottom: 0.35em;
+}
+.debug-md-preview code {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.88em;
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+  background: var(--panel-card-hover);
+  border: 1px solid var(--panel-border);
+}
+.debug-md-preview pre {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  margin: 0 0 0.75em;
+  padding: 12px 14px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--panel-card);
+  border: 1px solid var(--panel-border);
+}
+.debug-md-preview pre code {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: inherit;
+}
+.debug-md-preview a {
+  color: var(--panel-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.debug-md-preview blockquote {
+  margin: 0 0 0.75em;
+  padding-left: 12px;
+  border-left: 3px solid var(--panel-accent-border);
+  color: var(--panel-text-dim);
+}
+@media (max-width: 720px) {
+  .debug-io-expand-body {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto;
+  }
+}
+
 /*
  * XY Flow defaults: 150px width + centered text for built-in input/output nodes.
  * Custom cards use min-width ~220px; if the wrapper stays 150px, content overflows

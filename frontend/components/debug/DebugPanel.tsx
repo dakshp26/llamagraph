@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { orderNodes, topologicalNodeIds } from "@/lib/graphOrder";
 import { NODE_CATEGORIES, nodeColor } from "@/lib/nodeConfig";
@@ -8,6 +8,7 @@ import { readDebugExpanded, RAIL, writeDebugExpanded } from "@/lib/uiChromeSessi
 import { useExecutionStore } from "@/store/executionStore";
 import { usePipelineStore } from "@/store/pipelineStore";
 import type { FlowNode } from "@/types/pipeline";
+import { DebugIoExpandOverlay } from "./DebugIoExpandOverlay";
 import { NodeIoPane } from "./NodeIoPane";
 
 function truncate(s: string, n: number) {
@@ -45,11 +46,13 @@ export function DebugPanel() {
   const nodes = usePipelineStore((s) => s.nodes);
   const edges = usePipelineStore((s) => s.edges);
   const focusNode = usePipelineStore((s) => s.focusNode);
+  const debugIoExpandGeneration = usePipelineStore((s) => s.debugIoExpandGeneration);
   const baseId = useId();
   const regionId = `${baseId}-debug`;
   const artifacts = useExecutionStore((s) => s.nodeRunArtifacts);
 
   const [expanded, setExpanded] = useState(() => readDebugExpanded());
+  const [ioExpandOpen, setIoExpandOpen] = useState(false);
   const [hovered, setHovered] = useState<{ id: string; rect: DOMRect } | null>(null);
 
   const persist = useCallback((next: boolean) => {
@@ -67,6 +70,21 @@ export function DebugPanel() {
   }, [orderedIds]);
 
   const hoveredNode = hovered ? (nodes.find((n) => n.id === hovered.id) ?? null) : null;
+
+  const prevDebugExpandGen = useRef(debugIoExpandGeneration);
+
+  useEffect(() => {
+    if (!expanded) setIoExpandOpen(false);
+  }, [expanded]);
+
+  useEffect(() => {
+    if (debugIoExpandGeneration === prevDebugExpandGen.current) return;
+    prevDebugExpandGen.current = debugIoExpandGeneration;
+    if (debugIoExpandGeneration > 0) {
+      setIoExpandOpen(true);
+      persist(true);
+    }
+  }, [debugIoExpandGeneration, persist]);
 
   return (
     <aside
@@ -94,16 +112,53 @@ export function DebugPanel() {
         {expanded ? (
           <span className="panel-label">debug</span>
         ) : null}
-        <button
-          type="button"
-          className="panel-toggle"
-          aria-expanded={expanded}
-          aria-controls={regionId}
-          onClick={() => persist(!expanded)}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
         >
-          {expanded ? "›" : "‹"}
-          <span className="sr-only">{expanded ? "Collapse debug panel" : "Expand debug panel"}</span>
-        </button>
+          {expanded ? (
+            <button
+              type="button"
+              className="panel-toggle"
+              aria-haspopup="dialog"
+              aria-expanded={ioExpandOpen}
+              aria-controls={`${regionId}-io-expand`}
+              title="Expand I/O view"
+              onClick={() => setIoExpandOpen(true)}
+            >
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+              >
+                <path
+                  d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4M15 3h6v6M10 14 21 3"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="sr-only">Open expanded I/O view</span>
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="panel-toggle"
+            aria-expanded={expanded}
+            aria-controls={regionId}
+            onClick={() => persist(!expanded)}
+          >
+            {expanded ? "›" : "‹"}
+            <span className="sr-only">{expanded ? "Collapse debug panel" : "Expand debug panel"}</span>
+          </button>
+        </div>
       </div>
 
       {expanded ? (
@@ -281,6 +336,14 @@ export function DebugPanel() {
           ))}
         </div>
       ) : null}
+
+      <DebugIoExpandOverlay
+        dialogId={`${regionId}-io-expand`}
+        open={ioExpandOpen}
+        onClose={() => setIoExpandOpen(false)}
+        node={selected}
+        artifact={selected ? artifacts[selected.id] : undefined}
+      />
     </aside>
   );
 }

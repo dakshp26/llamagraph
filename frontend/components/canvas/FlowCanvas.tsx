@@ -6,6 +6,7 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
+  type NodeMouseHandler,
   type Viewport,
 } from "@xyflow/react";
 import { useCallback, type KeyboardEvent } from "react";
@@ -15,6 +16,7 @@ import { Toolbar } from "@/components/canvas/Toolbar";
 import { DebugPanel } from "@/components/debug/DebugPanel";
 import { nodeTypes } from "@/components/nodes/nodeTypes";
 import { usePipelineStore } from "@/store/pipelineStore";
+import type { FlowNode } from "@/types/pipeline";
 
 export function FlowCanvas() {
   const nodes = usePipelineStore((s) => s.nodes);
@@ -24,6 +26,7 @@ export function FlowCanvas() {
   const onNodesChange = usePipelineStore((s) => s.onNodesChange);
   const onEdgesChange = usePipelineStore((s) => s.onEdgesChange);
   const addEdge = usePipelineStore((s) => s.addEdge);
+  const focusNodeAndExpandDebugIo = usePipelineStore((s) => s.focusNodeAndExpandDebugIo);
 
   const onMoveEnd = useCallback(
     (_event: MouseEvent | TouchEvent | null, vp: Viewport) => {
@@ -37,6 +40,13 @@ export function FlowCanvas() {
       e.preventDefault();
     }
   }, []);
+
+  const onNodeDoubleClick: NodeMouseHandler<FlowNode> = useCallback(
+    (_event, node) => {
+      focusNodeAndExpandDebugIo(node.id);
+    },
+    [focusNodeAndExpandDebugIo],
+  );
 
   return (
     <div
@@ -58,6 +68,7 @@ export function FlowCanvas() {
           onConnect={(c) => addEdge(c)}
           onEdgesChange={onEdgesChange}
           onMoveEnd={onMoveEnd}
+          onNodeDoubleClick={onNodeDoubleClick}
           onNodesChange={onNodesChange}
           proOptions={{ hideAttribution: true }}
         >

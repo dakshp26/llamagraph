@@ -1,11 +1,13 @@
 "use client";
 
+import { useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 import {
   type NodeIoExecutionSlice,
   deriveOutputText,
 } from "@/lib/debugNodeIo";
+import { useNodePreview } from "@/lib/nodePreview";
 import type {
   FlowNode,
   InputNodeData,
@@ -18,18 +20,86 @@ import { nodeColor } from "@/lib/nodeConfig";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
 import { usePipelineStore } from "@/store/pipelineStore";
 
+const PREVIEW_TIP =
+  "Preview is based on the most recent pipeline run. Changes to upstream nodes are not reflected until the pipeline is re-run; only edits to this node take effect immediately.";
+
+export const OUTPUT_TIP =
+  "Output reflects the most recent pipeline run. Changes to upstream nodes take effect only after re-running the pipeline; only edits to this node are applied immediately.";
+
+export function InfoTip({ message }: { message: string }) {
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const iconRef = useRef<HTMLSpanElement>(null);
+
+  return (
+    <span
+      style={{ display: "inline-flex", alignItems: "center" }}
+      onMouseEnter={() => setRect(iconRef.current?.getBoundingClientRect() ?? null)}
+      onMouseLeave={() => setRect(null)}
+    >
+      <span
+        ref={iconRef}
+        aria-label={message}
+        style={{
+          fontFamily: "var(--font-geist-mono), monospace",
+          fontSize: 9,
+          color: "var(--panel-text-muted)",
+          cursor: "default",
+          userSelect: "none",
+          lineHeight: 1,
+          opacity: 0.55,
+        }}
+      >
+        ⓘ
+      </span>
+      {rect && (
+        <span
+          role="tooltip"
+          style={{
+            position: "fixed",
+            // show below if more viewport space below than above, otherwise above
+            ...(rect.top > window.innerHeight - rect.bottom
+              ? { bottom: window.innerHeight - rect.top + 5 }
+              : { top: rect.bottom + 5 }),
+            left: Math.min(rect.left, window.innerWidth - 252),
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            borderRadius: 4,
+            padding: "5px 8px",
+            fontFamily: "var(--font-geist-mono), monospace",
+            fontSize: 9,
+            color: "var(--panel-text-muted)",
+            letterSpacing: "0.04em",
+            lineHeight: 1.6,
+            width: 240,
+            zIndex: 9999,
+            pointerEvents: "none",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+          }}
+        >
+          {message}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function IoBlock({
   label,
   children,
   helper,
+  tip,
 }: {
   label: string;
   children: ReactNode;
   helper?: string | null;
+  tip?: string;
 }) {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col" style={{ gap: 5 }}>
-      <div className="panel-rule">{label}</div>
+      <div className="panel-rule" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <span>{label}</span>
+        {tip ? <InfoTip message={tip} /> : null}
+      </div>
       <div className="io-block">
         {children}
       </div>
@@ -85,6 +155,7 @@ export function NodeParamsEditor({
   const updateNodeData = usePipelineStore((s) => s.updateNodeData);
   const ollamaModels = useExecutionStore((s) => s.ollamaModels);
   const { id, type, data } = node;
+  const preview = useNodePreview(id, type, data);
   const sid = `${id}${inputIdSuffix}`;
 
   if (type === "input") {
@@ -115,6 +186,27 @@ export function NodeParamsEditor({
           value={d.template}
           onChange={(e) => updateNodeData(id, { template: e.target.value })}
         />
+        <div style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 4 }}>
+          <span>preview</span>
+          <InfoTip message={PREVIEW_TIP} />
+        </div>
+        <pre
+          style={{
+            fontFamily: "var(--font-geist-mono), monospace",
+            fontSize: 11,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            borderRadius: 3,
+            color: preview ? "var(--panel-text)" : "var(--panel-text-muted)",
+            fontStyle: preview ? "normal" : "italic",
+            padding: "3px 6px",
+            margin: 0,
+          }}
+        >
+          {preview || "Run prior nodes to see the resolved prompt."}
+        </pre>
       </div>
     );
   }
@@ -152,6 +244,30 @@ export function NodeParamsEditor({
               value={d.template}
               onChange={(e) => updateNodeData(id, { template: e.target.value })}
             />
+          </>
+        )}
+        {preview && (
+          <>
+            <div style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 4 }}>
+              <span>preview</span>
+              <InfoTip message={PREVIEW_TIP} />
+            </div>
+            <pre
+              style={{
+                fontFamily: "var(--font-geist-mono), monospace",
+                fontSize: 11,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                background: "var(--panel-bg)",
+                border: "1px solid var(--panel-border)",
+                borderRadius: 3,
+                color: "var(--panel-text)",
+                padding: "3px 6px",
+                margin: 0,
+              }}
+            >
+              {preview}
+            </pre>
           </>
         )}
       </div>
@@ -330,7 +446,7 @@ export function NodeIoPane({
           <NodeParamsEditor node={node} />
         </IoBlock>
 
-        <IoBlock label="output" helper={out.partialNote}>
+        <IoBlock label="output" helper={out.partialNote} tip={OUTPUT_TIP}>
           {out.display === "error" ? (
             <span
               style={{

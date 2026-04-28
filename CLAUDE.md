@@ -29,38 +29,46 @@ docker compose up --build
 LlamaGraph is a visual AI pipeline builder. Users drag-and-drop nodes onto a canvas, connect them, and run pipelines that stream responses from a local Ollama LLM. Designed for non-technical end users.
 
 **Monorepo layout:**
-- `frontend/` — Next.js 16 (App Router), React 19, XYFlow, Zustand, Tailwind CSS 4
+- `frontend/` — Next.js 16 (App Router), React 19, @xyflow/react 12, Zustand 5, Tailwind CSS 4, Vitest
 - `backend/` — Python 3.11, FastAPI, Uvicorn, Ollama client, Pydantic v2, uv
-- `README.md` — setup, scripts, and API overview
 
-**Frontend state:**
-- `store/pipelineStore.ts` — owns the graph (nodes, edges, viewport)
-- `store/executionStore.ts` — owns run state, per-node status, streaming token output
+**Frontend state (Zustand stores):**
+- `store/pipelineStore.ts` — graph (nodes, edges, viewport)
+- `store/executionStore.ts` — run state, per-node status, streaming tokens, execution artifacts
 - `store/validationStore.ts` — Ollama health, graph validity, validation issues
 
 **Key frontend files:**
 - `lib/sseClient.ts` — SSE stream consumer for pipeline run events
 - `lib/pipelineFile.ts` — save/load `.llamagraph.json` with schema versioning
+- `lib/nodePreview.ts` — live upstream-aware preview registry (computes outputs client-side without a run)
+- `lib/transformPreview.ts` — preview logic for Transform nodes
+- `lib/nodeConfig.ts` — node type metadata (labels, handle definitions, defaults)
+- `lib/nodeExecutionChrome.ts` — per-node execution chrome/status UI helpers
+- `lib/graphOrder.ts` — client-side topological ordering for previews
+- `lib/uiChromeSession.ts` — localStorage persistence for UI state (toolbar expand/collapse, etc.)
+- `components/debug/` — `DebugPanel`, `DebugIoExpandOverlay` (double-click a node), `NodeIoPane`
 
 **Backend request flow:**
 1. `POST /pipeline/validate` — polled continuously by the UI; validates graph and returns `ValidationErrorItem[]`
-2. `POST /pipeline/run` receives full graph JSON
+2. `POST /pipeline/run` — receives full graph JSON; max 1 concurrent run (queue rejection returns friendly error)
 3. `services/graph.py` validates and topologically sorts the DAG
-4. `services/executor.py` executes node by node; condition nodes mark unreachable branches as skipped
+4. `services/executor.py` executes node by node; emits SSE events; condition nodes mark unreachable branches as skipped
 5. `services/node_handlers.py` dispatches per-type async handlers
 6. LLM nodes stream tokens via SSE; `services/ollama_client.py` wraps the Ollama API
-7. `services/pipeline_utils.py` handles SSE formatting, template resolution, condition matching
-8. Frontend consumes SSE events (`token`, `node_status`, `error`, `done`)
+7. `services/pipeline_utils.py` — SSE formatting, template resolution, condition matching
+8. `services/transform_ops.py` — regex/JSON-path extraction with size limits and safety checks
+9. Frontend consumes SSE events (`token`, `node_status`, `error`, `done`)
 
 **API surface:**
 | Method | Path | Purpose |
 |--------|------|---------|
+| `GET` | `/` | Health check |
 | `GET` | `/ollama/health` | Ollama connectivity check |
 | `GET` | `/ollama/models` | Available model list |
 | `POST` | `/pipeline/validate` | Graph validation — polled continuously by the UI |
-| `POST` | `/pipeline/run` | Pipeline execution — returns an SSE stream |
+| `POST` | `/pipeline/run` | Pipeline execution — SSE stream; 1 concurrent run max |
 
-**Six node types:** Input → Prompt (template) → Transform (regex/field extract) → Condition (branch) → LLM (Ollama) → Output
+**Seven node types:** Input → Prompt (template w/ `{{handle}}` vars) → Transform (template or JSON-path extract) → Condition (branch) → LLM (Ollama) → Output, plus PlaceholderNode (canvas UI hint)
 
 **Engineering constraints:**
 - Always validate pipelines on the backend — never trust client-only validation
@@ -69,3 +77,4 @@ LlamaGraph is a visual AI pipeline builder. Users drag-and-drop nodes onto a can
 - Never expose raw Python exceptions or stack traces to the frontend
 - Never send pipeline data to external servers
 - Condition nodes skip unreachable branches — executor tracks and bypasses downstream nodes accordingly
+- Transform nodes enforce a 20 KB input size limit and regex safety checks

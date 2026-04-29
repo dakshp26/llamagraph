@@ -398,3 +398,7 @@ body {
 .react-flow .react-flow__node-default.selectable:focus-visible {
   box-shadow: none;
 }
+
+details[open] > summary .details-arrow {
+  transform: rotate(90deg);
+}

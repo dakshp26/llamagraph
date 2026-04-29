@@ -7,10 +7,11 @@ dependencies = [
     "uvicorn[standard]",
     "ollama",
     "pydantic",
+    "httpx",
 ]
 
 [dependency-groups]
-dev = ["httpx", "pytest", "ruff"]
+dev = ["pytest", "ruff"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

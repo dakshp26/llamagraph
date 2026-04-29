@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import AsyncIterator
+
+import httpx
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -157,6 +159,44 @@ async def _handle_llm(ctx: HandlerCtx) -> AsyncIterator[str]:
     ctx.context[nid] = "".join(parts)
 
 
+def _resolve_for_node(template: str, node_id: str, ctx: HandlerCtx) -> str:
+    return _resolve_prompt_template(template, node_id, ctx.edges, ctx.context, ctx.skipped)
+
+
+async def _handle_json_api(ctx: HandlerCtx) -> None:
+    nid = ctx.node.id
+    raw_url = str(ctx.node.data.get("url") or "")
+    raw_params = ctx.node.data.get("params") or []
+    raw_headers = ctx.node.data.get("headers") or []
+
+    url = _resolve_for_node(raw_url, nid, ctx)
+    params = {p["key"]: _resolve_for_node(p["value"], nid, ctx) for p in raw_params if p.get("key")}
+    headers = {h["key"]: _resolve_for_node(h["value"], nid, ctx) for h in raw_headers if h.get("key")}
+
+    ctx.result.input_snapshot = url
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, params=params, headers=headers, timeout=15)
+    except httpx.TimeoutException:
+        ctx.result.fatal_error = f"Request timed out after 15s ({url})."
+        return
+    except httpx.ConnectError:
+        ctx.result.fatal_error = f"Could not connect to {url}."
+        return
+    except Exception as exc:
+        ctx.result.fatal_error = f"Request failed: {type(exc).__name__}."
+        return
+
+    if not resp.is_success:
+        ctx.result.fatal_error = f"API returned {resp.status_code} {resp.reason_phrase}."
+        return
+
+    body = resp.text
+    if len(body) > 500_000:
+        body = body[:500_000] + "\n[...response truncated at 500 KB]"
+    ctx.context[nid] = body
+
+
 async def _handle_output(ctx: HandlerCtx) -> None:
     nid = ctx.node.id
     up = _assemble_from_incoming(nid, ctx.edges, ctx.context, ctx.order, ctx.skipped)
@@ -182,6 +222,7 @@ NODE_HANDLERS: dict[str, Any] = {
     "condition": _handle_condition,
     "llm": _handle_llm,
     "output": _handle_output,
+    "json_api": _handle_json_api,
 }
 
 _FALLBACK_HANDLER = _handle_fallback

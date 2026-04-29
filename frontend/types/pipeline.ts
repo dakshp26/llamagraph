@@ -8,7 +8,8 @@ export type NodeType =
   | "transform"
   | "condition"
   | "llm"
-  | "output";
+  | "output"
+  | "json_api";
 
 export interface InputNodeData extends Record<string, unknown> {
   value: string;
@@ -39,13 +40,25 @@ export interface OutputNodeData extends Record<string, unknown> {
   lastRunAt?: string;
 }
 
+export interface JsonApiParam extends Record<string, unknown> {
+  key: string;
+  value: string;
+}
+
+export interface JsonApiNodeData extends Record<string, unknown> {
+  url: string;
+  params: JsonApiParam[];
+  headers: JsonApiParam[];
+}
+
 export type FlowNodeData =
   | InputNodeData
   | PromptNodeData
   | TransformNodeData
   | ConditionNodeData
   | LLMNodeData
-  | OutputNodeData;
+  | OutputNodeData
+  | JsonApiNodeData;
 
 export type FlowNode = Node<FlowNodeData, NodeType>;
 
@@ -105,6 +118,8 @@ export function defaultNodeData(type: NodeType): FlowNodeData {
       return { model: "llama3.2", temperature: 0.7, systemPrompt: "" };
     case "output":
       return {};
+    case "json_api":
+      return { url: "", params: [], headers: [] };
   }
 }
 

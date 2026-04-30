@@ -1,20 +1,18 @@
 <div align="center">
-  <img src="assets/readme-title.svg" height="40" alt="⬡ LlamaGraph" />
-</div>
 
-<div align="center">
-  <strong>Your AI. Your machine. Your rules.</strong>
-  <br/>
-</div>
+<img src="assets/readme-title.svg" height="40" alt="⬡ LlamaGraph" />
 
-<div align="center">
+**Your AI. Your machine. Your rules.**
 
-![License](https://img.shields.io/badge/license-MIT-blue) ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white) ![Ollama](https://img.shields.io/badge/Ollama-local-grey?logo=ollama) ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue) 
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) 
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white) 
+![Ollama](https://img.shields.io/badge/Ollama-local-grey?logo=ollama) 
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 
-</div>
 
-<div align="center">
-  <img src="assets/screenshot_canvas.png" alt="LlamaGraph canvas — visual pipeline builder with nodes and wiring" />
+<img src="assets/screenshot_canvas.png" alt="LlamaGraph canvas — visual pipeline builder with nodes and wiring" />
+
 </div>
 
 <p align="center">

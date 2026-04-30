@@ -226,15 +226,21 @@ def test_safe_url_allows_ipv6_loopback_non_app_port() -> None:
 
 
 def test_safe_url_handler_rejects_private_ip() -> None:
-    ctx = _make_ctx(url="http://192.168.1.1/data")
-    _run(ctx)
+    patcher, mock_client = _patch_httpx(MagicMock())
+    with patcher:
+        ctx = _make_ctx(url="http://192.168.1.1/data")
+        _run(ctx)
+    mock_client.get.assert_not_called()
     assert ctx.result.fatal_error is not None
     assert "internal" in ctx.result.fatal_error.lower() or "private" in ctx.result.fatal_error.lower()
 
 
 def test_safe_url_handler_rejects_app_port() -> None:
-    ctx = _make_ctx(url="http://127.0.0.1:8000/pipeline/run")
-    _run(ctx)
+    patcher, mock_client = _patch_httpx(MagicMock())
+    with patcher:
+        ctx = _make_ctx(url="http://127.0.0.1:8000/pipeline/run")
+        _run(ctx)
+    mock_client.get.assert_not_called()
     assert ctx.result.fatal_error is not None
 
 

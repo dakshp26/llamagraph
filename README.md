@@ -98,6 +98,10 @@ Most local LLM tools give you a chat window. Most pipeline tools require writing
 
 Nodes are composable: connect them in any order the DAG allows, fan out to parallel branches, or converge multiple streams into one.
 
+### Sources
+
+Source nodes produce data. Every pipeline needs at least one. They have no required upstream connections.
+
 <details>
 <summary><strong>Input</strong> — entry point, feeds text or data into the pipeline</summary>
 
@@ -109,6 +113,25 @@ The Input node is where every pipeline begins. You type (or paste) a value direc
 - The value is stored in the saved `.llamagraph.json` file so pipelines are self-contained and replayable
 
 </details>
+
+<details>
+<summary><strong>JSON API</strong> — fetches data from an external HTTP endpoint</summary>
+
+The JSON API node makes a GET request to any public HTTP/HTTPS URL and passes the response body downstream as text. Use it to pull live data — REST APIs, JSON feeds, public datasets — into your pipeline before processing it with a Prompt or Transform node.
+
+- Enter a URL directly, or use `{{handle}}` placeholders to inject values from upstream nodes (e.g. `https://api.example.com/posts/{{post_id}}`)
+- Add any number of key/value **query params** and **headers** — placeholders work in those fields too
+- The full response body (up to 500 KB) is passed downstream; pair it with a Transform node to extract a specific field before feeding it to an LLM
+- Requests to private or internal addresses (`192.168.x.x`, `10.x.x.x`, `169.254.x.x`, `localhost`) are blocked to prevent accidental internal network access
+- A live `curl` preview updates as you type so you can verify the exact request before running
+
+See [`examples/json_api_example.llamagraph.json`](examples/json_api_example.llamagraph.json) for a working pipeline that fetches a post from a public API, extracts its body field, and has an LLM translate it.
+
+</details>
+
+### Processing
+
+Processing nodes transform, route, or run data through a model. Most require at least one upstream connection — Prompt nodes only require one if the template contains a `{{placeholder}}`.
 
 <details>
 <summary><strong>Prompt</strong> — Jinja-style template that injects upstream values into a prompt</summary>
@@ -160,6 +183,8 @@ The LLM node sends its upstream input to a locally running Ollama model and stre
 - If Ollama is unreachable, the node surfaces a clear error rather than hanging
 
 </details>
+
+### Output
 
 <details>
 <summary><strong>Output</strong> — terminal node, displays final results</summary>

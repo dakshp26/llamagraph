@@ -13,7 +13,6 @@ import {
   nodeSkippedCardClass,
 } from "@/lib/nodeExecutionChrome";
 import { makeJsonApiParamHandlers } from "@/lib/jsonApiParams";
-import { useNodePreview } from "@/lib/nodePreview";
 import { useExecutionStore } from "@/store/executionStore";
 import { usePipelineStore } from "@/store/pipelineStore";
 import type { FlowNode, JsonApiNodeData } from "@/types/pipeline";
@@ -23,7 +22,6 @@ export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
   const updateNodeData = usePipelineStore((s) => s.updateNodeData);
   const updateNodeInternals = useUpdateNodeInternals();
   const nodeStatus = useExecutionStore((s) => s.nodeStatuses[id]);
-  const preview = useNodePreview(id, "json_api", d);
 
   const allText =
     d.url +
@@ -154,15 +152,6 @@ export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
           </button>
         </div>
       </details>
-
-      {preview && (
-        <div className="mt-2 border-t border-neutral-100 pt-2">
-          <div className="mb-0.5 text-[11px] font-medium text-neutral-500">Preview</div>
-          <pre className="whitespace-pre-wrap rounded bg-neutral-50 px-2 py-1.5 font-mono text-[11px] text-neutral-700">
-            {preview}
-          </pre>
-        </div>
-      )}
 
       <Handle
         className="!h-3 !w-3 !border-2 !border-white !bg-orange-500"

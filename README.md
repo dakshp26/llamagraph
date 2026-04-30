@@ -1,5 +1,6 @@
 <div align="center">
   <img src="assets/readme-title.svg" height="40" alt="⬡ LlamaGraph" />
+  <strong>Your AI. Your machine. Your rules.</strong><br/>
 </div>
 
 <div align="center">

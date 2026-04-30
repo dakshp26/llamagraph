@@ -13,9 +13,10 @@
 </div>
 
 <p align="center">
-**An open-source, no-code AI workflow builder for local LLMs.** Drag nodes onto a canvas, wire them into prompt chains or branching pipelines, and run them against any Ollama model — fully local, no API keys, no data ever leaving your machine.
-
-⭐️ If you like this project, please [star the repo on GitHub](https://github.com/dakshp26/llamagraph)! Your support helps more people discover and improve this open source project.
+  <strong>An open-source, no-code AI workflow builder for local LLMs.</strong> Drag nodes onto a canvas, wire them into prompt chains or branching pipelines, and run them against any Ollama model — fully local, no API keys, no data ever leaving your machine.
+</p>
+<p align="center">
+  ⭐️ If you like this project, please <a href="https://github.com/dakshp26/llamagraph">star the repo on GitHub</a>! Your support helps more people discover and improve this open source project.
 </p>
 ---
 

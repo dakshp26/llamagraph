@@ -131,7 +131,7 @@ See [`examples/json_api_example.llamagraph.json`](examples/json_api_example.llam
 
 ### Processing
 
-Processing nodes transform, route, or run data through a model. Most require at least one upstream connection — Prompt nodes only require one if the template contains a `{{placeholder}}`.
+Processing nodes transform or route data. Most require at least one upstream connection — Prompt nodes only require one if the template contains a `{{placeholder}}`.
 
 <details>
 <summary><strong>Prompt</strong> — Jinja-style template that injects upstream values into a prompt</summary>
@@ -170,6 +170,10 @@ The Condition node evaluates its upstream input against a rule and routes execut
 - The executor tracks skipped node IDs and propagates the skip state through all transitive dependents
 
 </details>
+
+### Intelligence
+
+Intelligence nodes invoke a local language model. They require at least one upstream connection providing the prompt text.
 
 <details>
 <summary><strong>LLM</strong> — calls a local Ollama model and streams the response</summary>

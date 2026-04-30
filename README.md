@@ -12,10 +12,11 @@
   <img src="assets/screenshot_canvas.png" alt="LlamaGraph canvas — visual pipeline builder with nodes and wiring" />
 </div>
 
+<p align="center">
 **An open-source, no-code AI workflow builder for local LLMs.** Drag nodes onto a canvas, wire them into prompt chains or branching pipelines, and run them against any Ollama model — fully local, no API keys, no data ever leaving your machine.
 
-If you find this project useful, consider [starring the repo on GitHub](https://github.com/dakshp26/llamagraph) — it helps others discover it.
-
+⭐️ If you like this project, please [star the repo on GitHub](https://github.com/dakshp26/llamagraph)! Your support helps more people discover and improve this open source project.
+</p>
 ---
 
 ## Quick Start

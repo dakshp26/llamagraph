@@ -21,6 +21,7 @@ const NODE_TYPES = new Set<NodeType>([
   "condition",
   "llm",
   "output",
+  "json_api",
 ]);
 
 export function savePipeline(
@@ -150,6 +151,21 @@ function normalizeNodeData(type: NodeType, data: Record<string, unknown>): FlowN
       };
     case "output":
       return {};
+    case "json_api": {
+      const params = Array.isArray(data.params) ? data.params : [];
+      const headers = Array.isArray(data.headers) ? data.headers : [];
+      return {
+        url: getBoundedString(data.url, ""),
+        params: params.map((p: unknown) => {
+          const r = isRecord(p) ? p : {};
+          return { id: getBoundedString(r.id, crypto.randomUUID()), key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
+        }),
+        headers: headers.map((h: unknown) => {
+          const r = isRecord(h) ? h : {};
+          return { id: getBoundedString(r.id, crypto.randomUUID()), key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
+        }),
+      };
+    }
   }
 }
 

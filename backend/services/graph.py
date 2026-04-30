@@ -4,6 +4,8 @@ from graphlib import CycleError, TopologicalSorter
 from backend.models.pipeline import EdgeModel, GraphPayload, NodeModel
 from backend.services.constants import _PLACEHOLDER_RE
 
+_SOURCE_TYPES = {"input", "json_api"}
+
 
 @dataclass(frozen=True)
 class GraphValidationIssue:
@@ -60,11 +62,11 @@ def validate_graph(payload: GraphPayload) -> list[GraphValidationIssue]:
     errors: list[GraphValidationIssue] = []
 
     types_lower = [n.type.lower() for n in nodes]
-    if not any(t == "input" for t in types_lower):
+    if not any(t in _SOURCE_TYPES for t in types_lower):
         errors.append(
             GraphValidationIssue(
                 None,
-                "Add at least one Input node to start the pipeline.",
+                "Add at least one Input or JSON API node to start the pipeline.",
             )
         )
     if not any(t == "output" for t in types_lower):
@@ -81,9 +83,46 @@ def validate_graph(payload: GraphPayload) -> list[GraphValidationIssue]:
             incoming[e.target].append(e)
 
     for n in nodes:
-        if n.type.lower() == "input":
+        t = n.type.lower()
+        if t == "input":
             continue
-        if n.type.lower() == "prompt" and not _PLACEHOLDER_RE.search(
+        if t == "json_api":
+            all_text = (
+                str(n.data.get("url") or "")
+                + "".join(str(p.get("value", "")) for p in (n.data.get("params") or []))
+                + "".join(str(h.get("value", "")) for h in (n.data.get("headers") or []))
+            )
+            has_placeholders = bool(_PLACEHOLDER_RE.search(all_text))
+            if has_placeholders and not incoming[n.id]:
+                errors.append(
+                    GraphValidationIssue(
+                        n.id,
+                        f'Node "{n.id}" needs at least one incoming connection.',
+                    )
+                )
+            url = str(n.data.get("url") or "")
+            if not url:
+                errors.append(GraphValidationIssue(n.id, "JSON API node requires a URL."))
+            else:
+                url_stripped = _PLACEHOLDER_RE.sub("", url).strip()
+                if url_stripped and not (
+                    url_stripped.startswith("http://") or url_stripped.startswith("https://")
+                ):
+                    errors.append(
+                        GraphValidationIssue(n.id, "JSON API URL must start with http:// or https://.")
+                    )
+                target_handles = {e.target_handle for e in incoming[n.id] if e.target_handle}
+                for name in _PLACEHOLDER_RE.findall(all_text):
+                    if name not in target_handles:
+                        errors.append(
+                            GraphValidationIssue(
+                                n.id,
+                                f'JSON API references "{{{{{name}}}}}" but no incoming edge targets '
+                                f'handle "{name}".',
+                            )
+                        )
+            continue
+        if t == "prompt" and not _PLACEHOLDER_RE.search(
             _prompt_template_text(n.data)
         ):
             continue

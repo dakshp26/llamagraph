@@ -1,7 +1,8 @@
 import { usePipelineStore } from "@/store/pipelineStore";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
-import type { FlowEdge, PromptNodeData, TransformNodeData } from "@/types/pipeline";
+import type { FlowEdge, JsonApiNodeData, PromptNodeData, TransformNodeData } from "@/types/pipeline";
 import { resolvePromptTemplate } from "./promptPlaceholders";
+import { buildCurlPreview } from "./jsonApiPreview";
 import { previewTransformExtract, previewTransformTemplate } from "./transformPreview";
 
 interface PreviewCtx {
@@ -49,6 +50,21 @@ const previewRegistry: Partial<Record<string, PreviewFn>> = {
       handleValues[e.targetHandle as string] = allArtifacts[e.source]?.value ?? "";
     }
     return resolvePromptTemplate(d.template, handleValues);
+  },
+
+  json_api: (data, { nodeId, edges, allArtifacts }) => {
+    const d = data as JsonApiNodeData;
+    const incoming = edges.filter((e) => e.target === nodeId && e.targetHandle);
+    const handleValues: Record<string, string> = {};
+    for (const e of incoming) {
+      handleValues[e.targetHandle as string] = allArtifacts[e.source]?.value ?? "";
+    }
+    const resolved: JsonApiNodeData = {
+      url: resolvePromptTemplate(d.url, handleValues),
+      params: d.params.map((p) => ({ key: p.key, value: resolvePromptTemplate(p.value, handleValues) })),
+      headers: d.headers.map((h) => ({ key: h.key, value: resolvePromptTemplate(h.value, handleValues) })),
+    };
+    return buildCurlPreview(resolved);
   },
 };
 

@@ -37,6 +37,15 @@ function nodeInfoLines(n: FlowNode): string[] {
       ];
     case "output":
       return ["(no config)"];
+    case "json_api": {
+      const url = String(d.url ?? "");
+      const params = Array.isArray(d.params) ? d.params : [];
+      const lines = [`url: "${truncate(url, 30) || "(empty)"}"`];
+      if (params.filter((p: Record<string, unknown>) => p.key).length > 0) {
+        lines.push(`params: ${params.filter((p: Record<string, unknown>) => p.key).length}`);
+      }
+      return lines;
+    }
     default:
       return [];
   }

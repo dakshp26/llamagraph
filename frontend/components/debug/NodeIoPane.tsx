@@ -8,9 +8,11 @@ import {
   deriveOutputText,
 } from "@/lib/debugNodeIo";
 import { useNodePreview } from "@/lib/nodePreview";
+import { makeJsonApiParamHandlers } from "@/lib/jsonApiParams";
 import type {
   FlowNode,
   InputNodeData,
+  JsonApiNodeData,
   PromptNodeData,
   TransformNodeData,
   ConditionNodeData,
@@ -331,6 +333,115 @@ export function NodeParamsEditor({
           value={d.systemPrompt}
           onChange={(e) => updateNodeData(id, { systemPrompt: e.target.value })}
         />
+      </div>
+    );
+  }
+
+  if (type === "json_api") {
+    const d = data as JsonApiNodeData;
+    const { updateParam, addParam, removeParam, updateHeader, addHeader, removeHeader } =
+      makeJsonApiParamHandlers(id, d, updateNodeData);
+
+    return (
+      <div>
+        <label style={labelStyle} htmlFor={`dbg-japi-url-${sid}`}>url</label>
+        <textarea
+          id={`dbg-japi-url-${sid}`}
+          rows={2}
+          style={{ ...inputStyle, resize: "vertical" }}
+          value={d.url}
+          onChange={(e) => updateNodeData(id, { url: e.target.value })}
+        />
+
+        <label style={labelStyle}>query params</label>
+        {d.params.map((p, i) => (
+          <div key={p.id ?? i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
+            <input
+              style={{ ...inputStyle, width: "35%" }}
+              placeholder="key"
+              value={p.key}
+              onChange={(e) => updateParam(i, "key", e.target.value)}
+            />
+            <input
+              style={{ ...inputStyle, width: "55%" }}
+              placeholder="value"
+              value={p.value}
+              onChange={(e) => updateParam(i, "value", e.target.value)}
+            />
+            <button
+              style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 12, color: "var(--panel-text-muted)", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
+              onClick={() => removeParam(i)}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <button
+          style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "var(--panel-accent)", background: "none", border: "none", cursor: "pointer", padding: "2px 0", letterSpacing: "0.04em" }}
+          onClick={addParam}
+        >
+          + add param
+        </button>
+
+        <details>
+          <summary style={{ ...labelStyle, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, listStyle: "none" }}>
+            <span style={{ fontSize: 7, display: "inline-block", transition: "transform 0.15s" }} className="details-arrow">▶</span>
+            headers
+          </summary>
+          {d.headers.map((h, i) => (
+            <div key={h.id ?? i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
+              <input
+                style={{ ...inputStyle, width: "35%" }}
+                placeholder="key"
+                value={h.key}
+                onChange={(e) => updateHeader(i, "key", e.target.value)}
+              />
+              <input
+                style={{ ...inputStyle, width: "55%" }}
+                placeholder="value"
+                value={h.value}
+                onChange={(e) => updateHeader(i, "value", e.target.value)}
+              />
+              <button
+                style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 12, color: "var(--panel-text-muted)", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}
+                onClick={() => removeHeader(i)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <button
+            style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "var(--panel-accent)", background: "none", border: "none", cursor: "pointer", padding: "2px 0", letterSpacing: "0.04em" }}
+            onClick={addHeader}
+          >
+            + add header
+          </button>
+        </details>
+
+        {preview && (
+          <>
+            <div style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+              <span>curl preview</span>
+              <InfoTip message={PREVIEW_TIP} />
+            </div>
+            <pre
+              style={{
+                fontFamily: "var(--font-geist-mono), monospace",
+                fontSize: 11,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                background: "var(--panel-bg)",
+                border: "1px solid var(--panel-border)",
+                borderRadius: 3,
+                color: "var(--panel-text)",
+                padding: "3px 6px",
+                margin: 0,
+              }}
+            >
+              {preview}
+            </pre>
+          </>
+        )}
       </div>
     );
   }

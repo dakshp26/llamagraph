@@ -13,6 +13,7 @@ export const NODE_META: Record<NodeType, NodeMeta> = {
   condition: { label: "Condition", abbr: "CO", color: "#e85858" },
   llm:       { label: "LLM",       abbr: "LM", color: "#16c784" },
   output:    { label: "Output",    abbr: "OU", color: "#22cde8" },
+  json_api:  { label: "JSON API",  abbr: "JA", color: "#f97316" },
 };
 
 export interface NodeCategory {
@@ -21,7 +22,7 @@ export interface NodeCategory {
 }
 
 export const NODE_CATEGORIES: NodeCategory[] = [
-  { label: "sources",    types: ["input"] },
+  { label: "sources",    types: ["input", "json_api"] },
   { label: "processing", types: ["prompt", "transform", "condition", "llm"] },
   { label: "sinks",      types: ["output"] },
 ];

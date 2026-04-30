@@ -6,7 +6,11 @@ The execute_pipeline loop never needs to change.
 from __future__ import annotations
 
 import inspect
+import ipaddress
+import urllib.parse
 from collections.abc import AsyncIterator
+
+import httpx
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -157,6 +161,73 @@ async def _handle_llm(ctx: HandlerCtx) -> AsyncIterator[str]:
     ctx.context[nid] = "".join(parts)
 
 
+_APP_PORTS = {8000, 3000}  # FastAPI backend, Next.js frontend
+
+
+def _is_safe_url(url: str) -> bool:
+    try:
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname or ""
+        port = parsed.port
+    except ValueError:
+        return False
+    try:
+        addr = ipaddress.ip_address(host)
+        # Loopback is allowed unless it targets one of the app's own ports.
+        if addr.is_loopback:
+            return port not in _APP_PORTS
+        # Block private (RFC-1918) and link-local (e.g. 169.254.x.x cloud metadata).
+        if addr.is_private or addr.is_link_local:
+            return False
+    except ValueError:
+        # Hostname — resolve check not feasible here; block only app ports on localhost name.
+        if host == "localhost":
+            return port not in _APP_PORTS
+    return True
+
+
+async def _handle_json_api(ctx: HandlerCtx) -> None:
+    nid = ctx.node.id
+    raw_url = str(ctx.node.data.get("url") or "")
+    raw_params = ctx.node.data.get("params") or []
+    raw_headers = ctx.node.data.get("headers") or []
+
+    def _resolve(template: str) -> str:
+        return _resolve_prompt_template(template, nid, ctx.edges, ctx.context, ctx.skipped)
+
+    url = _resolve(raw_url)
+    params = {p["key"]: _resolve(p["value"]) for p in raw_params if p.get("key")}
+    headers = {h["key"]: _resolve(h["value"]) for h in raw_headers if h.get("key")}
+
+    ctx.result.input_snapshot = url
+    if not _is_safe_url(url):
+        ctx.result.fatal_error = "Requests to internal or private addresses are not allowed."
+        return
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                url, params=params, headers=headers, timeout=15, follow_redirects=False
+            )
+    except httpx.TimeoutException:
+        ctx.result.fatal_error = f"Request timed out after 15s ({url})."
+        return
+    except httpx.ConnectError:
+        ctx.result.fatal_error = f"Could not connect to {url}."
+        return
+    except Exception as exc:
+        ctx.result.fatal_error = f"Request failed: {type(exc).__name__}."
+        return
+
+    if not resp.is_success:
+        ctx.result.fatal_error = f"API returned {resp.status_code} {resp.reason_phrase}."
+        return
+
+    body = resp.text
+    if len(body) > 500_000:
+        body = body[:500_000] + "\n[...response truncated at 500 KB]"
+    ctx.context[nid] = body
+
+
 async def _handle_output(ctx: HandlerCtx) -> None:
     nid = ctx.node.id
     up = _assemble_from_incoming(nid, ctx.edges, ctx.context, ctx.order, ctx.skipped)
@@ -182,6 +253,7 @@ NODE_HANDLERS: dict[str, Any] = {
     "condition": _handle_condition,
     "llm": _handle_llm,
     "output": _handle_output,
+    "json_api": _handle_json_api,
 }
 
 _FALLBACK_HANDLER = _handle_fallback

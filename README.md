@@ -1,20 +1,26 @@
 <div align="center">
-  <img src="assets/readme-title.svg" height="40" alt="⬡ LlamaGraph" />
+
+<img src="assets/readme-title.svg" height="40" alt="⬡ LlamaGraph" />
+
+**Your AI. Your machine. Your rules.**
+
+![License](https://img.shields.io/badge/license-MIT-blue) 
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) 
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white) 
+![Ollama](https://img.shields.io/badge/Ollama-local-grey?logo=ollama) 
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+
+
+<img src="assets/screenshot_canvas.png" alt="LlamaGraph canvas — visual pipeline builder with nodes and wiring" />
+
 </div>
 
-<div align="center">
-
-![License](https://img.shields.io/badge/license-MIT-blue) ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white) ![Ollama](https://img.shields.io/badge/Ollama-local-grey?logo=ollama) ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
-
-</div>
-
-<div align="center">
-  <img src="assets/screenshot_canvas.png" alt="LlamaGraph canvas — visual pipeline builder with nodes and wiring" />
-</div>
-
-**An open-source, no-code AI workflow builder for local LLMs.** Drag nodes onto a canvas, wire them into prompt chains or branching pipelines, and run them against any Ollama model — fully local, no API keys, no data ever leaving your machine.
-
-If you find this project useful, consider [starring the repo on GitHub](https://github.com/dakshp26/llamagraph) — it helps others discover it.
+<p align="center">
+  <strong>An open-source, no-code AI workflow builder for local LLMs.</strong> Drag nodes onto a canvas, wire them into prompt chains or branching pipelines, and run them against any Ollama model — fully local, no API keys, no data ever leaving your machine.
+</p>
+<p align="center">
+  ⭐️ If you like this project, please <a href="https://github.com/dakshp26/llamagraph">star the repo on GitHub</a>! Your support helps more people discover and improve this open source project.
+</p>
 
 ---
 

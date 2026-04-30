@@ -8,11 +8,11 @@ import {
   deriveOutputText,
 } from "@/lib/debugNodeIo";
 import { useNodePreview } from "@/lib/nodePreview";
+import { makeJsonApiParamHandlers } from "@/lib/jsonApiParams";
 import type {
   FlowNode,
   InputNodeData,
   JsonApiNodeData,
-  JsonApiParam,
   PromptNodeData,
   TransformNodeData,
   ConditionNodeData,
@@ -339,27 +339,8 @@ export function NodeParamsEditor({
 
   if (type === "json_api") {
     const d = data as JsonApiNodeData;
-
-    function updateParam(index: number, field: keyof JsonApiParam, value: string) {
-      const next = d.params.map((p, i) => (i === index ? { ...p, [field]: value } : p));
-      updateNodeData(id, { params: next });
-    }
-    function addParam() {
-      updateNodeData(id, { params: [...d.params, { key: "", value: "" }] });
-    }
-    function removeParam(index: number) {
-      updateNodeData(id, { params: d.params.filter((_, i) => i !== index) });
-    }
-    function updateHeader(index: number, field: keyof JsonApiParam, value: string) {
-      const next = d.headers.map((h, i) => (i === index ? { ...h, [field]: value } : h));
-      updateNodeData(id, { headers: next });
-    }
-    function addHeader() {
-      updateNodeData(id, { headers: [...d.headers, { key: "", value: "" }] });
-    }
-    function removeHeader(index: number) {
-      updateNodeData(id, { headers: d.headers.filter((_, i) => i !== index) });
-    }
+    const { updateParam, addParam, removeParam, updateHeader, addHeader, removeHeader } =
+      makeJsonApiParamHandlers(id, d, updateNodeData);
 
     return (
       <div>
@@ -374,7 +355,7 @@ export function NodeParamsEditor({
 
         <label style={labelStyle}>query params</label>
         {d.params.map((p, i) => (
-          <div key={i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
+          <div key={p.id ?? i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
             <input
               style={{ ...inputStyle, width: "35%" }}
               placeholder="key"
@@ -408,7 +389,7 @@ export function NodeParamsEditor({
             headers
           </summary>
           {d.headers.map((h, i) => (
-            <div key={i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
+            <div key={h.id ?? i} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
               <input
                 style={{ ...inputStyle, width: "35%" }}
                 placeholder="key"

@@ -12,10 +12,11 @@ import {
   nodeExecutionRingClass,
   nodeSkippedCardClass,
 } from "@/lib/nodeExecutionChrome";
+import { makeJsonApiParamHandlers } from "@/lib/jsonApiParams";
 import { useNodePreview } from "@/lib/nodePreview";
 import { useExecutionStore } from "@/store/executionStore";
 import { usePipelineStore } from "@/store/pipelineStore";
-import type { FlowNode, JsonApiNodeData, JsonApiParam } from "@/types/pipeline";
+import type { FlowNode, JsonApiNodeData } from "@/types/pipeline";
 
 export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
   const d = data as JsonApiNodeData;
@@ -36,31 +37,8 @@ export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
     updateNodeInternals(id);
   }, [id, placeholderSignature, updateNodeInternals]);
 
-  function updateParam(index: number, field: keyof JsonApiParam, value: string) {
-    const next = d.params.map((p, i) => (i === index ? { ...p, [field]: value } : p));
-    updateNodeData(id, { params: next });
-  }
-
-  function addParam() {
-    updateNodeData(id, { params: [...d.params, { key: "", value: "" }] });
-  }
-
-  function removeParam(index: number) {
-    updateNodeData(id, { params: d.params.filter((_, i) => i !== index) });
-  }
-
-  function updateHeader(index: number, field: keyof JsonApiParam, value: string) {
-    const next = d.headers.map((h, i) => (i === index ? { ...h, [field]: value } : h));
-    updateNodeData(id, { headers: next });
-  }
-
-  function addHeader() {
-    updateNodeData(id, { headers: [...d.headers, { key: "", value: "" }] });
-  }
-
-  function removeHeader(index: number) {
-    updateNodeData(id, { headers: d.headers.filter((_, i) => i !== index) });
-  }
+  const { updateParam, addParam, removeParam, updateHeader, addHeader, removeHeader } =
+    makeJsonApiParamHandlers(id, d, updateNodeData);
 
   return (
     <div
@@ -111,7 +89,7 @@ export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
       <div className="mt-2">
         <div className="mb-1 text-xs font-medium text-neutral-600">Query Params</div>
         {d.params.map((p, i) => (
-          <div key={i} className="mb-1 flex items-center gap-1">
+          <div key={p.id ?? i} className="mb-1 flex items-center gap-1">
             <input
               className="w-[35%] rounded border border-neutral-300 px-1.5 py-1 font-mono text-xs outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
               placeholder="key"
@@ -147,7 +125,7 @@ export function JsonApiNode({ id, data, selected }: NodeProps<FlowNode>) {
         </summary>
         <div className="mt-1">
           {d.headers.map((h, i) => (
-            <div key={i} className="mb-1 flex items-center gap-1">
+            <div key={h.id ?? i} className="mb-1 flex items-center gap-1">
               <input
                 className="w-[35%] rounded border border-neutral-300 px-1.5 py-1 font-mono text-xs outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                 placeholder="key"

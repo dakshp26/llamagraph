@@ -8,7 +8,7 @@ import pytest
 
 from backend.models.pipeline import EdgeModel, GraphPayload, NodeModel
 from backend.services.graph import validate_graph
-from backend.services.node_handlers import HandlerCtx, NodeHandlerResult, _handle_json_api
+from backend.services.node_handlers import HandlerCtx, NodeHandlerResult, _handle_json_api, _is_safe_url
 
 
 def _make_ctx(
@@ -164,6 +164,98 @@ def test_empty_key_rows_not_passed_to_httpx() -> None:
     assert "" not in kwargs["params"]
     assert "keep" in kwargs["params"]
     assert kwargs["headers"] == {}
+
+
+# ---------------------------------------------------------------------------
+# _is_safe_url unit tests
+# ---------------------------------------------------------------------------
+
+
+def test_safe_url_public_https() -> None:
+    assert _is_safe_url("https://api.example.com/data") is True
+
+
+def test_safe_url_public_http() -> None:
+    assert _is_safe_url("http://api.example.com/data") is True
+
+
+def test_safe_url_blocks_private_rfc1918() -> None:
+    assert _is_safe_url("http://192.168.1.100/admin") is False
+
+
+def test_safe_url_blocks_private_10_block() -> None:
+    assert _is_safe_url("http://10.0.0.1/secret") is False
+
+
+def test_safe_url_blocks_link_local_metadata() -> None:
+    # 169.254.169.254 is the cloud instance metadata endpoint
+    assert _is_safe_url("http://169.254.169.254/latest/meta-data/") is False
+
+
+def test_safe_url_blocks_loopback_app_port_8000() -> None:
+    assert _is_safe_url("http://127.0.0.1:8000/pipeline/run") is False
+
+
+def test_safe_url_blocks_loopback_app_port_3000() -> None:
+    assert _is_safe_url("http://127.0.0.1:3000/") is False
+
+
+def test_safe_url_blocks_localhost_app_port_8000() -> None:
+    assert _is_safe_url("http://localhost:8000/pipeline/run") is False
+
+
+def test_safe_url_blocks_localhost_app_port_3000() -> None:
+    assert _is_safe_url("http://localhost:3000/") is False
+
+
+def test_safe_url_allows_loopback_non_app_port() -> None:
+    # Users may run their own local API on a non-app port
+    assert _is_safe_url("http://127.0.0.1:9000/api") is True
+
+
+def test_safe_url_allows_localhost_non_app_port() -> None:
+    assert _is_safe_url("http://localhost:5000/api") is True
+
+
+def test_safe_url_blocks_ipv6_loopback_app_port() -> None:
+    assert _is_safe_url("http://[::1]:8000/") is False
+
+
+def test_safe_url_allows_ipv6_loopback_non_app_port() -> None:
+    assert _is_safe_url("http://[::1]:9000/") is True
+
+
+def test_safe_url_handler_rejects_private_ip() -> None:
+    ctx = _make_ctx(url="http://192.168.1.1/data")
+    _run(ctx)
+    assert ctx.result.fatal_error is not None
+    assert "internal" in ctx.result.fatal_error.lower() or "private" in ctx.result.fatal_error.lower()
+
+
+def test_safe_url_handler_rejects_app_port() -> None:
+    ctx = _make_ctx(url="http://127.0.0.1:8000/pipeline/run")
+    _run(ctx)
+    assert ctx.result.fatal_error is not None
+
+
+def test_redirect_to_private_ip_is_not_followed() -> None:
+    # A public URL that would redirect to the cloud metadata endpoint must not
+    # be followed — follow_redirects=False means the 3xx itself is the response.
+    ctx = _make_ctx(url="https://public.example.com/redir")
+    mock_resp = MagicMock()
+    mock_resp.is_success = False
+    mock_resp.status_code = 301
+    mock_resp.reason_phrase = "Moved Permanently"
+    mock_resp.headers = {"location": "http://169.254.169.254/latest/meta-data/"}
+    patcher, mock_client = _patch_httpx(mock_resp)
+    with patcher:
+        _run(ctx)
+    call_kwargs = mock_client.get.call_args.kwargs
+    assert call_kwargs.get("follow_redirects") is False, (
+        "follow_redirects must be False to prevent SSRF via redirect"
+    )
+    assert ctx.result.fatal_error is not None
+    assert "301" in ctx.result.fatal_error
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "savedAt": "2026-04-30T10:15:12.250Z",
+  "nodes": [
+    {
+      "id": "49210b88-37b1-4e71-b87e-9bb81d62ff28",
+      "type": "json_api",
+      "position": {
+        "x": 629.8987744194255,
+        "y": -203.29608377468435
+      },
+      "data": {
+        "url": "https://jsonplaceholder.typicode.com/posts/{{post_id}}",
+        "params": [],
+        "headers": []
+      },
+      "measured": {
+        "width": 320,
+        "height": 309
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "9468aeda-8a85-4acf-a500-53e5c41ac711",
+      "type": "input",
+      "position": {
+        "x": 43.60628755860063,
+        "y": 66.92666956225737
+      },
+      "data": {
+        "value": "Translate this to english"
+      },
+      "measured": {
+        "width": 233,
+        "height": 161
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "30565b63-5070-48b6-ac7a-6ee7dcb10800",
+      "type": "prompt",
+      "position": {
+        "x": 400.81939330823377,
+        "y": 375.34595488001196
+      },
+      "data": {
+        "template": "{{instruction}}\n\n{{JSONOutput}}"
+      },
+      "measured": {
+        "width": 279,
+        "height": 217
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "3a8b5343-c6fa-41ba-8e36-fff0118b88eb",
+      "type": "llm",
+      "position": {
+        "x": 414.05807193422277,
+        "y": 671.6720067235509
+      },
+      "data": {
+        "model": "gemma3:1b",
+        "temperature": 0.7,
+        "systemPrompt": ""
+      },
+      "measured": {
+        "width": 260,
+        "height": 273
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "9d87e0e0-d54c-4601-9b60-b8a191d8e0c0",
+      "type": "output",
+      "position": {
+        "x": 428.4352695304723,
+        "y": 1042.3054637157857
+      },
+      "data": {
+        "lastRunAt": "2026-04-30T10:12:41.870Z"
+      },
+      "measured": {
+        "width": 233,
+        "height": 215
+      },
+      "selected": true,
+      "dragging": false
+    },
+    {
+      "id": "550f9e16-3efc-496f-9d50-59d40c2b13df",
+      "type": "input",
+      "position": {
+        "x": 694.6169421470848,
+        "y": -411.0938413360718
+      },
+      "data": {
+        "value": "3"
+      },
+      "measured": {
+        "width": 233,
+        "height": 161
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "540b24d9-3ee9-44ab-9b03-2c317a961755",
+      "type": "transform",
+      "position": {
+        "x": 624.9017990261225,
+        "y": 158.1150556167355
+      },
+      "data": {
+        "mode": "extract",
+        "path": "body",
+        "template": ""
+      },
+      "measured": {
+        "width": 320,
+        "height": 160
+      },
+      "selected": false,
+      "dragging": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "9468aeda-8a85-4acf-a500-53e5c41ac711",
+      "sourceHandle": null,
+      "target": "30565b63-5070-48b6-ac7a-6ee7dcb10800",
+      "targetHandle": "instruction",
+      "id": "1732cb3e-dc0d-49d6-8a9f-078c7edeedac"
+    },
+    {
+      "source": "30565b63-5070-48b6-ac7a-6ee7dcb10800",
+      "sourceHandle": null,
+      "target": "3a8b5343-c6fa-41ba-8e36-fff0118b88eb",
+      "targetHandle": null,
+      "id": "a9492d81-371f-49f9-b004-1b35a291f591"
+    },
+    {
+      "source": "3a8b5343-c6fa-41ba-8e36-fff0118b88eb",
+      "sourceHandle": null,
+      "target": "9d87e0e0-d54c-4601-9b60-b8a191d8e0c0",
+      "targetHandle": null,
+      "id": "7ef7fc4c-37ee-49a8-b247-b11e09376822"
+    },
+    {
+      "source": "550f9e16-3efc-496f-9d50-59d40c2b13df",
+      "sourceHandle": null,
+      "target": "49210b88-37b1-4e71-b87e-9bb81d62ff28",
+      "targetHandle": "post_id",
+      "id": "b6e53bb0-d1dd-42ac-a792-0b6b12c6d562"
+    },
+    {
+      "source": "49210b88-37b1-4e71-b87e-9bb81d62ff28",
+      "sourceHandle": null,
+      "target": "540b24d9-3ee9-44ab-9b03-2c317a961755",
+      "targetHandle": null,
+      "id": "f932770b-5d96-4e1f-b1f5-32541112ada6"
+    },
+    {
+      "source": "540b24d9-3ee9-44ab-9b03-2c317a961755",
+      "sourceHandle": null,
+      "target": "30565b63-5070-48b6-ac7a-6ee7dcb10800",
+      "targetHandle": "JSONOutput",
+      "id": "57b8b4bc-fd51-442c-a222-4e1bb56dba2b"
+    }
+  ],
+  "viewport": {
+    "x": 563.8671740564616,
+    "y": 248.44057849613768,
+    "zoom": 0.5
+  }
+}

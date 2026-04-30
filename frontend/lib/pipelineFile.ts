@@ -158,11 +158,11 @@ function normalizeNodeData(type: NodeType, data: Record<string, unknown>): FlowN
         url: getBoundedString(data.url, ""),
         params: params.map((p: unknown) => {
           const r = isRecord(p) ? p : {};
-          return { key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
+          return { id: getBoundedString(r.id, crypto.randomUUID()), key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
         }),
         headers: headers.map((h: unknown) => {
           const r = isRecord(h) ? h : {};
-          return { key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
+          return { id: getBoundedString(r.id, crypto.randomUUID()), key: getBoundedString(r.key, ""), value: getBoundedString(r.value, "") };
         }),
       };
     }

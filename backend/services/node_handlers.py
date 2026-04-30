@@ -6,6 +6,8 @@ The execute_pipeline loop never needs to change.
 from __future__ import annotations
 
 import inspect
+import ipaddress
+import urllib.parse
 from collections.abc import AsyncIterator
 
 import httpx
@@ -159,8 +161,29 @@ async def _handle_llm(ctx: HandlerCtx) -> AsyncIterator[str]:
     ctx.context[nid] = "".join(parts)
 
 
-def _resolve_for_node(template: str, node_id: str, ctx: HandlerCtx) -> str:
-    return _resolve_prompt_template(template, node_id, ctx.edges, ctx.context, ctx.skipped)
+_APP_PORTS = {8000, 3000}  # FastAPI backend, Next.js frontend
+
+
+def _is_safe_url(url: str) -> bool:
+    try:
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname or ""
+        port = parsed.port
+    except ValueError:
+        return False
+    try:
+        addr = ipaddress.ip_address(host)
+        # Loopback is allowed unless it targets one of the app's own ports.
+        if addr.is_loopback:
+            return port not in _APP_PORTS
+        # Block private (RFC-1918) and link-local (e.g. 169.254.x.x cloud metadata).
+        if addr.is_private or addr.is_link_local:
+            return False
+    except ValueError:
+        # Hostname — resolve check not feasible here; block only app ports on localhost name.
+        if host == "localhost":
+            return port not in _APP_PORTS
+    return True
 
 
 async def _handle_json_api(ctx: HandlerCtx) -> None:
@@ -169,14 +192,22 @@ async def _handle_json_api(ctx: HandlerCtx) -> None:
     raw_params = ctx.node.data.get("params") or []
     raw_headers = ctx.node.data.get("headers") or []
 
-    url = _resolve_for_node(raw_url, nid, ctx)
-    params = {p["key"]: _resolve_for_node(p["value"], nid, ctx) for p in raw_params if p.get("key")}
-    headers = {h["key"]: _resolve_for_node(h["value"], nid, ctx) for h in raw_headers if h.get("key")}
+    def _resolve(template: str) -> str:
+        return _resolve_prompt_template(template, nid, ctx.edges, ctx.context, ctx.skipped)
+
+    url = _resolve(raw_url)
+    params = {p["key"]: _resolve(p["value"]) for p in raw_params if p.get("key")}
+    headers = {h["key"]: _resolve(h["value"]) for h in raw_headers if h.get("key")}
 
     ctx.result.input_snapshot = url
+    if not _is_safe_url(url):
+        ctx.result.fatal_error = "Requests to internal or private addresses are not allowed."
+        return
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(url, params=params, headers=headers, timeout=15)
+            resp = await client.get(
+                url, params=params, headers=headers, timeout=15, follow_redirects=False
+            )
     except httpx.TimeoutException:
         ctx.result.fatal_error = f"Request timed out after 15s ({url})."
         return

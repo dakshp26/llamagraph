@@ -1,5 +1,9 @@
 import type { JsonApiNodeData } from "@/types/pipeline";
 
+function shellQuote(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 export function buildCurlPreview(data: JsonApiNodeData): string {
   if (!data.url) return "";
 
@@ -8,12 +12,16 @@ export function buildCurlPreview(data: JsonApiNodeData): string {
 
   let urlPart = data.url;
   if (params.length > 0) {
-    urlPart += "?" + params.map((p) => `${p.key}=${p.value}`).join("&");
+    const qs = new URLSearchParams(params.map((p) => [p.key, p.value]))
+      .toString()
+      .replace(/%7B%7B/gi, "{{")
+      .replace(/%7D%7D/gi, "}}");
+    urlPart += "?" + qs;
   }
 
-  const lines: string[] = [`curl "${urlPart}"`];
+  const lines: string[] = [`curl ${shellQuote(urlPart)}`];
   for (const h of headers) {
-    lines.push(`  -H "${h.key}: ${h.value}"`);
+    lines.push(`  -H ${shellQuote(`${h.key}: ${h.value}`)}`);
   }
 
   return lines.join("\n");

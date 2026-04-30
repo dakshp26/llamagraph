@@ -41,6 +41,7 @@ export interface OutputNodeData extends Record<string, unknown> {
 }
 
 export interface JsonApiParam extends Record<string, unknown> {
+  id?: string;
   key: string;
   value: string;
 }

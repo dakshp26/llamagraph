@@ -14,7 +14,7 @@ describe("buildCurlPreview", () => {
 
   it("URL only, no params or headers", () => {
     expect(buildCurlPreview(make({ url: "https://api.example.com/data" }))).toBe(
-      'curl "https://api.example.com/data"',
+      "curl 'https://api.example.com/data'",
     );
   });
 
@@ -28,7 +28,7 @@ describe("buildCurlPreview", () => {
         ],
       }),
     );
-    expect(result).toBe('curl "https://api.example.com/data?foo=bar&baz=qux"');
+    expect(result).toBe("curl 'https://api.example.com/data?foo=bar&baz=qux'");
   });
 
   it("URL + params + headers", () => {
@@ -40,7 +40,7 @@ describe("buildCurlPreview", () => {
       }),
     );
     expect(result).toBe(
-      'curl "https://api.example.com?q=hello"\n  -H "Authorization: Bearer token"',
+      "curl 'https://api.example.com?q=hello'\n  -H 'Authorization: Bearer token'",
     );
   });
 
@@ -51,24 +51,32 @@ describe("buildCurlPreview", () => {
         headers: [{ key: "X-Custom", value: "val" }],
       }),
     );
-    expect(result).toBe('curl "https://api.example.com"\n  -H "X-Custom: val"');
+    expect(result).toBe("curl 'https://api.example.com'\n  -H 'X-Custom: val'");
   });
 
-  it("{{handle}} token in param value passes through unchanged", () => {
+  it("param values are URL-encoded", () => {
+    const result = buildCurlPreview(
+      make({
+        url: "https://api.example.com",
+        params: [{ key: "q", value: "hello world" }],
+      }),
+    );
+    expect(result).toBe("curl 'https://api.example.com?q=hello+world'");
+  });
+
+  it("{{handle}} token in param value stays readable", () => {
     const result = buildCurlPreview(
       make({
         url: "https://api.example.com",
         params: [{ key: "q", value: "{{query}}" }],
       }),
     );
-    expect(result).toBe('curl "https://api.example.com?q={{query}}"');
+    expect(result).toBe("curl 'https://api.example.com?q={{query}}'");
   });
 
   it("{{handle}} token in URL passes through unchanged", () => {
-    const result = buildCurlPreview(
-      make({ url: "https://{{host}}/api" }),
-    );
-    expect(result).toBe('curl "https://{{host}}/api"');
+    const result = buildCurlPreview(make({ url: "https://{{host}}/api" }));
+    expect(result).toBe("curl 'https://{{host}}/api'");
   });
 
   it("rows with empty keys are excluded from params", () => {
@@ -81,7 +89,7 @@ describe("buildCurlPreview", () => {
         ],
       }),
     );
-    expect(result).toBe('curl "https://api.example.com?keep=yes"');
+    expect(result).toBe("curl 'https://api.example.com?keep=yes'");
   });
 
   it("rows with empty keys are excluded from headers", () => {
@@ -94,7 +102,7 @@ describe("buildCurlPreview", () => {
         ],
       }),
     );
-    expect(result).toBe('curl "https://api.example.com"\n  -H "Accept: application/json"');
+    expect(result).toBe("curl 'https://api.example.com'\n  -H 'Accept: application/json'");
   });
 
   it("multiple headers each on their own line", () => {
@@ -108,7 +116,37 @@ describe("buildCurlPreview", () => {
       }),
     );
     expect(result).toBe(
-      'curl "https://api.example.com"\n  -H "Accept: application/json"\n  -H "X-Token: abc"',
+      "curl 'https://api.example.com'\n  -H 'Accept: application/json'\n  -H 'X-Token: abc'",
     );
+  });
+
+  it("double-quotes in URL do not break the preview", () => {
+    const result = buildCurlPreview(make({ url: 'https://api.example.com/q?x="foo"' }));
+    expect(result).toBe("curl 'https://api.example.com/q?x=\"foo\"'");
+  });
+
+  it("double-quotes in header value do not break the preview", () => {
+    const result = buildCurlPreview(
+      make({
+        url: "https://api.example.com",
+        headers: [{ key: "Accept", value: 'application/"json"' }],
+      }),
+    );
+    expect(result).toBe("curl 'https://api.example.com'\n  -H 'Accept: application/\"json\"'");
+  });
+
+  it("single-quote in URL is escaped so the shell command is valid", () => {
+    const result = buildCurlPreview(make({ url: "https://api.example.com/it's" }));
+    expect(result).toBe("curl 'https://api.example.com/it'\\''s'");
+  });
+
+  it("single-quote in header value is escaped so the shell command is valid", () => {
+    const result = buildCurlPreview(
+      make({
+        url: "https://api.example.com",
+        headers: [{ key: "X-Msg", value: "it's here" }],
+      }),
+    );
+    expect(result).toBe("curl 'https://api.example.com'\n  -H 'X-Msg: it'\\''s here'");
   });
 });

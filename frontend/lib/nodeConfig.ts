@@ -22,9 +22,10 @@ export interface NodeCategory {
 }
 
 export const NODE_CATEGORIES: NodeCategory[] = [
-  { label: "sources",    types: ["input", "json_api"] },
-  { label: "processing", types: ["prompt", "transform", "condition", "llm"] },
-  { label: "sinks",      types: ["output"] },
+  { label: "sources",      types: ["input", "json_api"] },
+  { label: "processing",   types: ["prompt", "transform", "condition"] },
+  { label: "intelligence", types: ["llm"] },
+  { label: "output",        types: ["output"] },
 ];
 
 export function nodeColor(type: string | undefined): string {

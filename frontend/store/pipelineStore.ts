@@ -8,7 +8,7 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 
-import type { FlowEdge, FlowNode, NodeType, PipelineFile } from "@/types/pipeline";
+import type { FlowEdge, FlowNode, FlowNodeData, NodeType, PipelineFile } from "@/types/pipeline";
 import { defaultNodeData } from "@/types/pipeline";
 
 const defaultViewport: Viewport = { x: 0, y: 0, zoom: 1 };
@@ -42,14 +42,18 @@ export interface PipelineState {
   focusNodeAndExpandDebugIo: (id: string) => void;
   /** Bumped each time {@link focusNodeAndExpandDebugIo} runs; DebugPanel opens overlay when it changes. */
   debugIoExpandGeneration: number;
+  clipboardNode: { type: NodeType; data: FlowNodeData } | null;
+  copyNode: (id: string) => void;
+  pasteNode: (position: XYPosition) => void;
 }
 
-export const usePipelineStore = create<PipelineState>((set) => ({
+export const usePipelineStore = create<PipelineState>((set, get) => ({
   nodes: [],
   edges: [],
   viewport: defaultViewport,
   loadVersion: 0,
   debugIoExpandGeneration: 0,
+  clipboardNode: null,
 
   onNodesChange: (changes) => {
     set((s) => ({ nodes: applyNodeChanges(changes, s.nodes) }));
@@ -66,6 +70,7 @@ export const usePipelineStore = create<PipelineState>((set) => ({
       type,
       position: pos,
       data: defaultNodeData(type),
+      ...(type === "note" && { connectable: false }),
     };
     set((s) => ({ nodes: [...s.nodes, node] }));
   },
@@ -105,7 +110,7 @@ export const usePipelineStore = create<PipelineState>((set) => ({
 
   loadPipeline: (file) => {
     set((s) => ({
-      nodes: file.nodes,
+      nodes: file.nodes.map((n) => n.type === "note" ? { ...n, connectable: false } : n),
       edges: file.edges,
       viewport: file.viewport,
       loadVersion: s.loadVersion + 1,
@@ -123,5 +128,23 @@ export const usePipelineStore = create<PipelineState>((set) => ({
       nodes: s.nodes.map((n) => ({ ...n, selected: n.id === id })),
       debugIoExpandGeneration: s.debugIoExpandGeneration + 1,
     }));
+  },
+
+  copyNode: (id) => {
+    const node = get().nodes.find((n) => n.id === id);
+    if (!node?.type) return;
+    set({ clipboardNode: { type: node.type, data: node.data } });
+  },
+
+  pasteNode: (position) => {
+    const cb = get().clipboardNode;
+    if (!cb) return;
+    const node: FlowNode = {
+      id: newNodeId(),
+      type: cb.type,
+      position,
+      data: structuredClone(cb.data) as FlowNode["data"],
+    };
+    set((s) => ({ nodes: [...s.nodes, node] }));
   },
 }));

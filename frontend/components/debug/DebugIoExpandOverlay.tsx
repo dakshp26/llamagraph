@@ -7,7 +7,8 @@ import ReactMarkdown from "react-markdown";
 import { deriveOutputText, type NodeIoExecutionSlice } from "@/lib/debugNodeIo";
 import { nodeColor } from "@/lib/nodeConfig";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
-import type { FlowNode } from "@/types/pipeline";
+import { usePipelineStore } from "@/store/pipelineStore";
+import type { FlowNode, NoteNodeData } from "@/types/pipeline";
 
 import { InfoTip, NodeParamsEditor, OUTPUT_TIP } from "./NodeIoPane";
 
@@ -178,6 +179,7 @@ export function DebugIoExpandOverlay({
   };
 
   const typeColor = node ? nodeColor(node.type) : undefined;
+  const updateNodeData = usePipelineStore((s) => s.updateNodeData);
 
   if (!mounted) return null;
 
@@ -248,70 +250,113 @@ export function DebugIoExpandOverlay({
           </div>
         </header>
 
-        <div
-          className="debug-io-expand-body grid min-h-0 flex-1 overflow-hidden"
-          style={{
-            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
-            gap: 0,
-          }}
-        >
-          {/* Inputs */}
+        {node?.type === "note" ? (
+          /* Note node — full-width editable textarea */
           <div
-            className="flex min-h-0 min-w-0 flex-col overflow-auto border-r"
-            style={{
-              borderColor: "var(--panel-border)",
-              padding: "14px 16px",
-              gap: 8,
-            }}
-          >
-            <div className="panel-rule">inputs</div>
-            {node ? (
-              <div className="min-h-0 flex-1">
-                <NodeParamsEditor node={node} inputIdSuffix="-expand" />
-              </div>
-            ) : (
-              <p
-                style={{
-                  fontFamily: "var(--font-geist-mono), monospace",
-                  fontSize: 10,
-                  color: "var(--panel-text-muted)",
-                  letterSpacing: "0.04em",
-                  lineHeight: 1.6,
-                  margin: 0,
-                }}
-              >
-                {"// select a node to inspect i/o"}
-              </p>
-            )}
-          </div>
-
-          {/* Output */}
-          <div
-            className="flex min-h-0 min-w-0 flex-col overflow-auto"
+            className="debug-io-expand-body flex min-h-0 flex-1 flex-col overflow-hidden"
             style={{ padding: "14px 16px", gap: 8 }}
           >
-            {node ? (
-              <ExpandOutputColumn node={node} ex={ex} artifact={artifact} />
-            ) : (
-              <>
-                <div className="panel-rule">output</div>
-                <div className="io-block debug-io-expand-out">
-                  <p
-                    style={{
-                      fontFamily: "var(--font-geist-mono), monospace",
-                      fontSize: 10,
-                      color: "var(--panel-text-muted)",
-                      letterSpacing: "0.04em",
-                      margin: 0,
-                    }}
-                  >
-                    {"// select a node to inspect i/o"}
-                  </p>
-                </div>
-              </>
-            )}
+            <div className="panel-rule">note text</div>
+            <div className="io-block debug-io-expand-out flex min-h-0 flex-1 flex-col">
+              <textarea
+                style={{
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  fontSize: 13,
+                  background: "var(--panel-bg)",
+                  border: "none",
+                  borderRadius: 0,
+                  color: "var(--panel-text)",
+                  padding: "4px 2px",
+                  width: "100%",
+                  flex: 1,
+                  resize: "none",
+                  outline: "none",
+                  lineHeight: 1.7,
+                }}
+                placeholder="Add a note…"
+                value={(node.data as NoteNodeData).text}
+                onChange={(e) => updateNodeData(node.id, { text: e.target.value })}
+              />
+            </div>
+            <p
+              style={{
+                fontFamily: "var(--font-geist-mono), monospace",
+                fontSize: 9,
+                color: "var(--panel-text-muted)",
+                letterSpacing: "0.04em",
+                flexShrink: 0,
+                margin: 0,
+              }}
+            >
+              canvas annotation — not part of pipeline execution
+            </p>
           </div>
-        </div>
+        ) : (
+          <div
+            className="debug-io-expand-body grid min-h-0 flex-1 overflow-hidden"
+            style={{
+              gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+              gap: 0,
+            }}
+          >
+            {/* Inputs */}
+            <div
+              className="flex min-h-0 min-w-0 flex-col overflow-auto border-r"
+              style={{
+                borderColor: "var(--panel-border)",
+                padding: "14px 16px",
+                gap: 8,
+              }}
+            >
+              <div className="panel-rule">inputs</div>
+              {node ? (
+                <div className="min-h-0 flex-1">
+                  <NodeParamsEditor node={node} inputIdSuffix="-expand" />
+                </div>
+              ) : (
+                <p
+                  style={{
+                    fontFamily: "var(--font-geist-mono), monospace",
+                    fontSize: 10,
+                    color: "var(--panel-text-muted)",
+                    letterSpacing: "0.04em",
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}
+                >
+                  {"// select a node to inspect i/o"}
+                </p>
+              )}
+            </div>
+
+            {/* Output */}
+            <div
+              className="flex min-h-0 min-w-0 flex-col overflow-auto"
+              style={{ padding: "14px 16px", gap: 8 }}
+            >
+              {node ? (
+                <ExpandOutputColumn node={node} ex={ex} artifact={artifact} />
+              ) : (
+                <>
+                  <div className="panel-rule">output</div>
+                  <div className="io-block debug-io-expand-out">
+                    <p
+                      style={{
+                        fontFamily: "var(--font-geist-mono), monospace",
+                        fontSize: 10,
+                        color: "var(--panel-text-muted)",
+                        letterSpacing: "0.04em",
+                        margin: 0,
+                      }}
+                    >
+                      {"// select a node to inspect i/o"}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </dialog>,
     document.body,

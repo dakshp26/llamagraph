@@ -22,6 +22,7 @@ const NODE_TYPES = new Set<NodeType>([
   "llm",
   "output",
   "json_api",
+  "note",
 ]);
 
 export function savePipeline(
@@ -166,6 +167,8 @@ function normalizeNodeData(type: NodeType, data: Record<string, unknown>): FlowN
         }),
       };
     }
+    case "note":
+      return { text: getBoundedString(data.text, "") };
   }
 }
 

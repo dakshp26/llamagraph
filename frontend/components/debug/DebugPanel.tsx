@@ -46,6 +46,10 @@ function nodeInfoLines(n: FlowNode): string[] {
       }
       return lines;
     }
+    case "note": {
+      const text = String(d.text ?? "");
+      return [text ? `"${text.slice(0, 32)}${text.length > 32 ? "…" : ""}"` : "(empty)"];
+    }
     default:
       return [];
   }

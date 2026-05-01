@@ -208,6 +208,22 @@ The Output node is the sink of the pipeline. It receives the final value from it
 
 </details>
 
+### Canvas
+
+Canvas nodes are annotations and organisational aids. They are not part of pipeline execution and carry no data connections.
+
+<details>
+<summary><strong>Note</strong> — freeform sticky note for annotating the canvas</summary>
+
+The Note node is a resizable text area you can place anywhere on the canvas to document your pipeline, leave reminders, or label sections of a complex graph. It has no handles and is never executed.
+
+- Type anything — intent, assumptions, TODO items, section labels
+- Resize the text area by dragging its bottom-right corner
+- Notes are saved in the `.llamagraph.json` file alongside the rest of the graph
+- Right-click any Note node to copy or delete it via the context menu
+
+</details>
+
 ---
 
 ## Project structure

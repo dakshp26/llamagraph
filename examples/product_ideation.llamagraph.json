@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "savedAt": "2026-04-23T14:58:32.224Z",
+  "savedAt": "2026-05-01T19:57:30.562Z",
   "nodes": [
     {
       "id": "bfced592-c96e-42e0-93e1-fa5252daadba",
@@ -16,8 +16,7 @@
         "width": 233,
         "height": 161
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
@@ -33,8 +32,7 @@
         "width": 240,
         "height": 217
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
@@ -52,8 +50,7 @@
         "width": 260,
         "height": 273
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "13f77513-cf64-4dc1-a909-f5c79829b740",
@@ -69,8 +66,7 @@
         "width": 240,
         "height": 217
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
@@ -86,8 +82,7 @@
         "width": 240,
         "height": 217
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
@@ -105,8 +100,7 @@
         "width": 260,
         "height": 273
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
@@ -124,8 +118,7 @@
         "width": 260,
         "height": 273
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "a55c6dfc-7882-4adf-9f0c-1aae06e32506",
@@ -134,15 +127,12 @@
         "x": 953.2664549003408,
         "y": 1461.2500968934676
       },
-      "data": {
-        "lastRunAt": "2026-04-23T14:48:36.456Z"
-      },
+      "data": {},
       "measured": {
         "width": 233,
         "height": 215
       },
-      "selected": false,
-      "dragging": false
+      "selected": false
     },
     {
       "id": "fb381b40-96cc-44fb-b8d1-137f2846045a",
@@ -151,12 +141,61 @@
         "x": 213.69360082391302,
         "y": 1476.803490133914
       },
-      "data": {
-        "lastRunAt": "2026-04-23T14:48:36.456Z"
-      },
+      "data": {},
       "measured": {
         "width": 233,
         "height": 215
+      },
+      "selected": false
+    },
+    {
+      "id": "2ab6b87f-6165-4dd3-b798-045652956412",
+      "type": "note",
+      "position": {
+        "x": 227.67302205526445,
+        "y": 377.2017773437333
+      },
+      "data": {
+        "text": "Value Propositions and Target Audience"
+      },
+      "connectable": false,
+      "measured": {
+        "width": 200,
+        "height": 121
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "5b89c3f7-ae6e-4ae5-8c75-437b73f8fb80",
+      "type": "note",
+      "position": {
+        "x": -70.05527059200992,
+        "y": 894.308811941631
+      },
+      "data": {
+        "text": "Elevator pitch and social media captions"
+      },
+      "measured": {
+        "width": 200,
+        "height": 121
+      },
+      "selected": true,
+      "dragging": false
+    },
+    {
+      "id": "e0252cd9-84a1-4fae-8c24-47624c9550e8",
+      "type": "note",
+      "position": {
+        "x": 1235.7705743521758,
+        "y": 882.1211040554853
+      },
+      "data": {
+        "text": "Must Have Features based on target audience profile"
+      },
+      "measured": {
+        "width": 200,
+        "height": 121
       },
       "selected": false,
       "dragging": false
@@ -164,60 +203,60 @@
   ],
   "edges": [
     {
+      "id": "245d1675-fa39-4688-a11b-c7fd11941a15",
       "source": "bfced592-c96e-42e0-93e1-fa5252daadba",
-      "sourceHandle": null,
       "target": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
-      "targetHandle": "productConcept",
-      "id": "245d1675-fa39-4688-a11b-c7fd11941a15"
+      "sourceHandle": null,
+      "targetHandle": "productConcept"
     },
     {
+      "id": "0ef04fe8-e4e7-4e18-aa4b-2e54df5c3d2e",
       "source": "6c42e58c-4bea-4c81-9df1-fa9663ab3d1a",
-      "sourceHandle": null,
       "target": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
-      "targetHandle": null,
-      "id": "0ef04fe8-e4e7-4e18-aa4b-2e54df5c3d2e"
+      "sourceHandle": null,
+      "targetHandle": null
     },
     {
+      "id": "9744ef82-4f93-4d04-99d7-16e9940d78aa",
       "source": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
-      "sourceHandle": null,
       "target": "13f77513-cf64-4dc1-a909-f5c79829b740",
-      "targetHandle": "valuePropositions",
-      "id": "9744ef82-4f93-4d04-99d7-16e9940d78aa"
+      "sourceHandle": null,
+      "targetHandle": "valuePropositions"
     },
     {
+      "id": "19575d10-36b4-41b0-872e-76b85acc76c0",
       "source": "e3e338b9-a5ea-42d8-a52f-54e3af7d8bc7",
-      "sourceHandle": null,
       "target": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
-      "targetHandle": "productExplaination",
-      "id": "19575d10-36b4-41b0-872e-76b85acc76c0"
+      "sourceHandle": null,
+      "targetHandle": "productExplaination"
     },
     {
+      "id": "45868f86-1c76-4e4d-86a8-958ef6443788",
       "source": "13f77513-cf64-4dc1-a909-f5c79829b740",
-      "sourceHandle": null,
       "target": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
-      "targetHandle": null,
-      "id": "45868f86-1c76-4e4d-86a8-958ef6443788"
+      "sourceHandle": null,
+      "targetHandle": null
     },
     {
+      "id": "b4ae2935-0bd1-4a74-9192-6165544441fa",
       "source": "aaa828b1-052e-499d-9817-e56ec3a13ee4",
-      "sourceHandle": null,
       "target": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
-      "targetHandle": null,
-      "id": "b4ae2935-0bd1-4a74-9192-6165544441fa"
+      "sourceHandle": null,
+      "targetHandle": null
     },
     {
+      "id": "8bf90dde-c9b5-44bc-b40a-615321f81324",
       "source": "a9acf0c9-0f78-4e99-9ae2-4d62bfce3e04",
-      "sourceHandle": null,
       "target": "fb381b40-96cc-44fb-b8d1-137f2846045a",
-      "targetHandle": null,
-      "id": "8bf90dde-c9b5-44bc-b40a-615321f81324"
+      "sourceHandle": null,
+      "targetHandle": null
     },
     {
+      "id": "de2d15a9-9425-40cc-8aeb-5cb9b0d7e648",
       "source": "449ed82e-63de-41be-bd8c-4359d9dcbc47",
-      "sourceHandle": null,
       "target": "a55c6dfc-7882-4adf-9f0c-1aae06e32506",
-      "targetHandle": null,
-      "id": "de2d15a9-9425-40cc-8aeb-5cb9b0d7e648"
+      "sourceHandle": null,
+      "targetHandle": null
     }
   ],
   "viewport": {

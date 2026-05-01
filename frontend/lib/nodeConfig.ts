@@ -14,6 +14,7 @@ export const NODE_META: Record<NodeType, NodeMeta> = {
   llm:       { label: "LLM",       abbr: "LM", color: "#16c784" },
   output:    { label: "Output",    abbr: "OU", color: "#22cde8" },
   json_api:  { label: "JSON API",  abbr: "JA", color: "#f97316" },
+  note:      { label: "Note",      abbr: "NT", color: "#fef08a" },
 };
 
 export interface NodeCategory {
@@ -25,7 +26,8 @@ export const NODE_CATEGORIES: NodeCategory[] = [
   { label: "sources",      types: ["input", "json_api"] },
   { label: "processing",   types: ["prompt", "transform", "condition"] },
   { label: "intelligence", types: ["llm"] },
-  { label: "output",        types: ["output"] },
+  { label: "output",       types: ["output"] },
+  { label: "canvas",       types: ["note"] },
 ];
 
 export function nodeColor(type: string | undefined): string {

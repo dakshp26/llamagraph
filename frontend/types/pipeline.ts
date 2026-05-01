@@ -9,7 +9,8 @@ export type NodeType =
   | "condition"
   | "llm"
   | "output"
-  | "json_api";
+  | "json_api"
+  | "note";
 
 export interface InputNodeData extends Record<string, unknown> {
   value: string;
@@ -52,6 +53,10 @@ export interface JsonApiNodeData extends Record<string, unknown> {
   headers: JsonApiParam[];
 }
 
+export interface NoteNodeData extends Record<string, unknown> {
+  text: string;
+}
+
 export type FlowNodeData =
   | InputNodeData
   | PromptNodeData
@@ -59,7 +64,8 @@ export type FlowNodeData =
   | ConditionNodeData
   | LLMNodeData
   | OutputNodeData
-  | JsonApiNodeData;
+  | JsonApiNodeData
+  | NoteNodeData;
 
 export type FlowNode = Node<FlowNodeData, NodeType>;
 
@@ -121,22 +127,28 @@ export function defaultNodeData(type: NodeType): FlowNodeData {
       return {};
     case "json_api":
       return { url: "", params: [], headers: [] };
+    case "note":
+      return { text: "" };
   }
 }
 
 export function toGraphPayload(nodes: FlowNode[], edges: FlowEdge[]): GraphPayload {
+  const pipelineNodes = nodes.filter((n) => n.type !== "note");
+  const pipelineNodeIds = new Set(pipelineNodes.map((n) => n.id));
   return {
-    nodes: nodes.map((n) => ({
+    nodes: pipelineNodes.map((n) => ({
       id: n.id,
       type: n.type,
       data: { ...(n.data as Record<string, unknown>) },
     })),
-    edges: edges.map((e) => ({
-      id: e.id,
-      source: e.source,
-      target: e.target,
-      sourceHandle: e.sourceHandle ?? null,
-      targetHandle: e.targetHandle ?? null,
-    })),
+    edges: edges
+      .filter((e) => pipelineNodeIds.has(e.source) && pipelineNodeIds.has(e.target))
+      .map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        sourceHandle: e.sourceHandle ?? null,
+        targetHandle: e.targetHandle ?? null,
+      })),
   };
 }

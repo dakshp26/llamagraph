@@ -13,6 +13,7 @@ import type {
   FlowNode,
   InputNodeData,
   JsonApiNodeData,
+  NoteNodeData,
   PromptNodeData,
   TransformNodeData,
   ConditionNodeData,
@@ -446,10 +447,45 @@ export function NodeParamsEditor({
     );
   }
 
+  if (type === "note") {
+    const d = data as NoteNodeData;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <label style={labelStyle} htmlFor={`dbg-note-text-${sid}`}>text</label>
+        <textarea
+          id={`dbg-note-text-${sid}`}
+          style={{ ...inputStyle, resize: "vertical", minHeight: 120, flex: 1 }}
+          placeholder="Add a note…"
+          value={d.text}
+          onChange={(e) => updateNodeData(id, { text: e.target.value })}
+        />
+      </div>
+    );
+  }
+
   return (
     <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 11, color: "var(--panel-text-muted)" }}>
       —
     </span>
+  );
+}
+
+function NodeHeader({ node, typeColor, status }: { node: FlowNode; typeColor: string; status?: string }) {
+  return (
+    <div className="flex items-center shrink-0" style={{ gap: 8 }}>
+      <span style={{ display: "inline-block", width: 2, height: 14, borderRadius: 1, background: typeColor, flexShrink: 0 }} />
+      <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 11, color: "var(--panel-text)", letterSpacing: "0.04em" }}>
+        {node.type}
+      </span>
+      <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "var(--panel-text-muted)", letterSpacing: "0.06em" }}>
+        {node.id.slice(0, 8)}
+      </span>
+      {status === "running" ? (
+        <span className="flowai-running-ring" style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "var(--panel-accent)", letterSpacing: "0.04em", marginLeft: "auto" }}>
+          ● exec
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -465,6 +501,7 @@ export function NodeIoPane({
   const nodeStatuses = useExecutionStore((s) => s.nodeStatuses);
   const streamingOutput = useExecutionStore((s) => s.streamingOutput);
   const errors = useExecutionStore((s) => s.errors);
+  const updateNodeData = usePipelineStore((s) => s.updateNodeData);
 
   if (!node) {
     return (
@@ -492,61 +529,33 @@ export function NodeIoPane({
     value: artifact?.value,
     input: artifact?.input,
   };
-  const out = deriveOutputText(node.id, node.type, ex, backend);
   const typeColor = nodeColor(node.type);
+
+  if (node.type === "note") {
+    const d = node.data as NoteNodeData;
+    return (
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col" style={{ gap: 10 }}>
+        <NodeHeader node={node} typeColor={typeColor} />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col" style={{ gap: 5 }}>
+          <div className="panel-rule">note text</div>
+          <div className="io-block" style={{ flex: 1, display: "flex" }}>
+            <textarea
+              style={{ ...inputStyle, resize: "none", flex: 1, minHeight: 60 }}
+              placeholder="Add a note…"
+              value={d.text}
+              onChange={(e) => updateNodeData(node.id, { text: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const out = deriveOutputText(node.id, node.type, ex, backend);
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col" style={{ gap: 10 }}>
-      {/* Node identity */}
-      <div
-        className="flex items-center shrink-0"
-        style={{ gap: 8 }}
-      >
-        <span
-          style={{
-            display: "inline-block",
-            width: 2,
-            height: 14,
-            borderRadius: 1,
-            background: typeColor,
-            flexShrink: 0,
-          }}
-        />
-        <span
-          style={{
-            fontFamily: "var(--font-geist-mono), monospace",
-            fontSize: 11,
-            color: "var(--panel-text)",
-            letterSpacing: "0.04em",
-          }}
-        >
-          {node.type}
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-geist-mono), monospace",
-            fontSize: 9,
-            color: "var(--panel-text-muted)",
-            letterSpacing: "0.06em",
-          }}
-        >
-          {node.id.slice(0, 8)}
-        </span>
-        {status === "running" ? (
-          <span
-            className="flowai-running-ring"
-            style={{
-              fontFamily: "var(--font-geist-mono), monospace",
-              fontSize: 9,
-              color: "var(--panel-accent)",
-              letterSpacing: "0.04em",
-              marginLeft: "auto",
-            }}
-          >
-            ● exec
-          </span>
-        ) : null}
-      </div>
+      <NodeHeader node={node} typeColor={typeColor} status={status} />
 
       {/* IO blocks */}
       <div

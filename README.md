@@ -135,6 +135,41 @@ See [`examples/json_api_example.llamagraph.json`](examples/json_api_example.llam
 
 </details>
 
+<details>
+<summary><strong>PDF Input</strong> — uploads a PDF and feeds its text content into the pipeline</summary>
+
+The PDF Input node lets you upload a PDF file and inject its extracted text as a source in the pipeline. The backend converts the file to Markdown using [MarkItDown](https://github.com/microsoft/markitdown) and passes the result downstream — no external service required.
+
+- Upload a PDF (up to 50 MB) directly from the node using the **Upload file** button
+- Previously uploaded files are remembered and selectable from the dropdown
+- A Markdown preview of the extracted text is displayed inline on the node (first 500 characters, expandable)
+- Files are stored server-side in `backend/files/`; pipelines reference files by name so the `.llamagraph.json` is portable across machines that have the same file available
+- Pair with a Prompt node to build document Q&A, summarisation, or extraction pipelines
+
+</details>
+
+<details>
+<summary><strong>DOCX Input</strong> — uploads a Word document and feeds its text content into the pipeline</summary>
+
+The DOCX Input node works identically to the PDF Input node but accepts `.docx` files (Microsoft Word format). The document is converted to Markdown server-side and passed downstream as plain text.
+
+- Upload any `.docx` file up to 50 MB
+- Headings, paragraphs, and lists from the Word document are preserved as Markdown structure
+- Useful for feeding reports, templates, or reference documents into an LLM without manual copy-paste
+
+</details>
+
+<details>
+<summary><strong>PPT Input</strong> — uploads a PowerPoint presentation and feeds its text content into the pipeline</summary>
+
+The PPT Input node accepts `.ppt` and `.pptx` files (Microsoft PowerPoint format) and extracts slide text, which is converted to Markdown and passed downstream.
+
+- Upload any `.ppt` or `.pptx` file up to 50 MB
+- Slide titles and body text are extracted and presented as Markdown
+- Useful for summarising decks, answering questions about presentation content, or feeding slide copy into a rewriting pipeline
+
+</details>
+
 ### Processing
 
 Processing nodes transform or route data. Most require at least one upstream connection — Prompt nodes only require one if the template contains a `{{placeholder}}`.
@@ -254,6 +289,9 @@ The UI continuously polls `POST /pipeline/validate` and surfaces errors in real 
 | `GET` | `/ollama/models` | Available model list |
 | `POST` | `/pipeline/validate` | Graph validation |
 | `POST` | `/pipeline/run` | Pipeline execution — SSE stream |
+| `GET` | `/files` | List uploaded files (filter by extension) |
+| `POST` | `/files/upload` | Upload a PDF, DOCX, or PPT file (max 50 MB) |
+| `GET` | `/files/preview/{filename}` | Convert a file to Markdown and return a preview |
 
 ## Tech stack
 

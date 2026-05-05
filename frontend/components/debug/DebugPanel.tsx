@@ -50,6 +50,12 @@ function nodeInfoLines(n: FlowNode): string[] {
       const text = String(d.text ?? "");
       return [text ? `"${text.slice(0, 32)}${text.length > 32 ? "…" : ""}"` : "(empty)"];
     }
+    case "pdf_input":
+    case "docx_input":
+    case "ppt_input": {
+      const filename = String(d.filename ?? "");
+      return [filename ? `file: "${truncate(filename, 30)}"` : "(no file selected)"];
+    }
     default:
       return [];
   }

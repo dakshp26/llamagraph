@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 import {
@@ -10,6 +10,7 @@ import {
 import { useNodePreview } from "@/lib/nodePreview";
 import { makeJsonApiParamHandlers } from "@/lib/jsonApiParams";
 import type {
+  FileInputNodeData,
   FlowNode,
   InputNodeData,
   JsonApiNodeData,
@@ -20,6 +21,7 @@ import type {
   LLMNodeData,
 } from "@/types/pipeline";
 import { nodeColor } from "@/lib/nodeConfig";
+import { useFileInput } from "@/lib/useFileInput";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
 import { usePipelineStore } from "@/store/pipelineStore";
 
@@ -145,6 +147,121 @@ const labelStyle: CSSProperties = {
   marginBottom: 2,
   marginTop: 6,
 };
+
+const FILE_TYPE_ACCEPT: Partial<Record<string, string>> = {
+  pdf_input: ".pdf",
+  docx_input: ".docx",
+  ppt_input: ".ppt,.pptx",
+};
+
+function FileInputParamsEditor({
+  node,
+  inputIdSuffix = "",
+}: {
+  node: FlowNode;
+  inputIdSuffix?: string;
+}) {
+  const { id, type, data } = node;
+  const d = data as FileInputNodeData;
+  const updateNodeData = usePipelineStore((s) => s.updateNodeData);
+  const accept = FILE_TYPE_ACCEPT[type] ?? "";
+  const sid = `${id}${inputIdSuffix}`;
+
+  const {
+    availableFiles,
+    uploading,
+    uploadError,
+    previewMarkdown,
+    previewLoading,
+    fileInputRef,
+    fetchPreview,
+    handleFileChange,
+    triggerUpload,
+  } = useFileInput({ accept, nodeId: id });
+
+  useEffect(() => { fetchPreview(d.filename ?? ""); }, [d.filename, fetchPreview]);
+
+  return (
+    <div>
+      <label style={labelStyle} htmlFor={`dbg-file-sel-${sid}`}>file</label>
+      <select
+        id={`dbg-file-sel-${sid}`}
+        style={inputStyle}
+        value={d.filename ?? ""}
+        onChange={(e) => updateNodeData(id, { filename: e.target.value })}
+      >
+        <option value="">— no file selected —</option>
+        {availableFiles.map((f) => (
+          <option key={f} value={f}>{f}</option>
+        ))}
+      </select>
+
+      <button
+        type="button"
+        disabled={uploading}
+        style={{
+          fontFamily: "var(--font-geist-mono), monospace",
+          fontSize: 9,
+          color: "var(--panel-accent)",
+          background: "none",
+          border: "none",
+          cursor: uploading ? "default" : "pointer",
+          padding: "4px 0 2px",
+          letterSpacing: "0.04em",
+          opacity: uploading ? 0.5 : 1,
+        }}
+        onClick={triggerUpload}
+      >
+        {uploading ? "uploading…" : "+ upload file"}
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+      {uploadError && (
+        <p style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "#e05050", marginTop: 2, letterSpacing: "0.04em" }}>
+          {uploadError}
+        </p>
+      )}
+
+      {d.filename ? (
+        <>
+          <div style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+            <span>preview</span>
+          </div>
+          {previewLoading ? (
+            <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 9, color: "var(--panel-text-muted)", letterSpacing: "0.04em" }}>
+              loading…
+            </span>
+          ) : (
+            <pre
+              style={{
+                fontFamily: "var(--font-geist-mono), monospace",
+                fontSize: 11,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                background: "var(--panel-bg)",
+                border: "1px solid var(--panel-border)",
+                borderRadius: 3,
+                color: previewMarkdown ? "var(--panel-text)" : "var(--panel-text-muted)",
+                fontStyle: previewMarkdown ? "normal" : "italic",
+                padding: "3px 6px",
+                margin: 0,
+                maxHeight: 140,
+                overflowY: "auto",
+              }}
+            >
+              {previewMarkdown || "(no preview available)"}
+            </pre>
+          )}
+        </>
+      ) : null}
+    </div>
+  );
+}
 
 /** Debug panel node parameter fields. Pass `inputIdSuffix` when another copy mounts (e.g. expand overlay) to keep ids unique. */
 export function NodeParamsEditor({
@@ -461,6 +578,10 @@ export function NodeParamsEditor({
         />
       </div>
     );
+  }
+
+  if (type === "pdf_input" || type === "docx_input" || type === "ppt_input") {
+    return <FileInputParamsEditor node={node} inputIdSuffix={inputIdSuffix} />;
   }
 
   return (

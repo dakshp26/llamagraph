@@ -23,6 +23,9 @@ const NODE_TYPES = new Set<NodeType>([
   "output",
   "json_api",
   "note",
+  "pdf_input",
+  "docx_input",
+  "ppt_input",
 ]);
 
 export function savePipeline(
@@ -169,6 +172,10 @@ function normalizeNodeData(type: NodeType, data: Record<string, unknown>): FlowN
     }
     case "note":
       return { text: getBoundedString(data.text, "") };
+    case "pdf_input":
+    case "docx_input":
+    case "ppt_input":
+      return { filename: getBoundedString(data.filename, "") };
   }
 }
 

@@ -1,6 +1,6 @@
 import { usePipelineStore } from "@/store/pipelineStore";
 import { useExecutionStore, type NodeRunArtifact } from "@/store/executionStore";
-import type { FlowEdge, JsonApiNodeData, PromptNodeData, TransformNodeData } from "@/types/pipeline";
+import type { FileInputNodeData, FlowEdge, JsonApiNodeData, PromptNodeData, TransformNodeData } from "@/types/pipeline";
 import { resolvePromptTemplate } from "./promptPlaceholders";
 import { buildCurlPreview } from "./jsonApiPreview";
 import { previewTransformExtract, previewTransformTemplate } from "./transformPreview";
@@ -51,6 +51,10 @@ const previewRegistry: Partial<Record<string, PreviewFn>> = {
     }
     return resolvePromptTemplate(d.template, handleValues);
   },
+
+  pdf_input:  (data) => (data as FileInputNodeData).filename ?? "",
+  docx_input: (data) => (data as FileInputNodeData).filename ?? "",
+  ppt_input:  (data) => (data as FileInputNodeData).filename ?? "",
 
   json_api: (data, { nodeId, edges, allArtifacts }) => {
     const d = data as JsonApiNodeData;

@@ -89,7 +89,7 @@ def test_validate_no_input_node() -> None:
         ],
     )
     errors = validate_graph(payload)
-    assert any("input" in e.message.lower() for e in errors)
+    assert any("source" in e.message.lower() for e in errors)
 
 
 def test_validate_prompt_placeholder_missing_edge() -> None:

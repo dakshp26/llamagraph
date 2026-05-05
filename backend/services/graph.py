@@ -4,7 +4,8 @@ from graphlib import CycleError, TopologicalSorter
 from backend.models.pipeline import EdgeModel, GraphPayload, NodeModel
 from backend.services.constants import _PLACEHOLDER_RE
 
-_SOURCE_TYPES = {"input", "json_api"}
+_SOURCE_TYPES = {"input", "json_api", "pdf_input", "docx_input", "ppt_input"}
+_FILE_INPUT_TYPES = {"pdf_input", "docx_input", "ppt_input"}
 
 
 @dataclass(frozen=True)
@@ -66,7 +67,7 @@ def validate_graph(payload: GraphPayload) -> list[GraphValidationIssue]:
         errors.append(
             GraphValidationIssue(
                 None,
-                "Add at least one Input or JSON API node to start the pipeline.",
+                "Add at least one Source node to start the pipeline.",
             )
         )
     if not any(t == "output" for t in types_lower):
@@ -85,6 +86,12 @@ def validate_graph(payload: GraphPayload) -> list[GraphValidationIssue]:
     for n in nodes:
         t = n.type.lower()
         if t == "input":
+            continue
+        if t in _FILE_INPUT_TYPES:
+            if not str(n.data.get("filename") or "").strip():
+                errors.append(
+                    GraphValidationIssue(n.id, "No file selected. Choose a file in the node.")
+                )
             continue
         if t == "json_api":
             all_text = (

@@ -95,6 +95,10 @@ export function deriveInputSection(
   if (kind === "condition") {
     return { text: str(d.pattern) || "(no pattern)", partialNote: partial };
   }
+  if (kind === "pdf_input" || kind === "docx_input" || kind === "ppt_input") {
+    const filename = str(d.filename);
+    return { text: filename || "(no file selected)", partialNote: null };
+  }
   if (kind === "llm" || kind === "output") {
     return {
       text: `Upstream (best effort): ${formatUpstreamEdgeHint(node.id, nodes, edges)}`,

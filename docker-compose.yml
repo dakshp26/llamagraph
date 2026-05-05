@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     environment:
       OLLAMA_HOST: http://host.docker.internal:11434
+    volumes:
+      - ./backend/files:/app/backend/files
 
   frontend:
     build:

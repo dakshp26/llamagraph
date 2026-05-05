@@ -382,7 +382,7 @@ def _make_llm_payload(prompt_value: str, model: str = "test-model") -> GraphPayl
 
 
 def test_executor_llm_prompt_too_long_emits_error() -> None:
-    long_prompt = "x" * 50_001
+    long_prompt = "x" * 100_001
     payload = _make_llm_payload(long_prompt)
 
     async def fake_llm(_model: str, _prompt: str, **_kw: object) -> AsyncIterator[str]:
@@ -395,7 +395,7 @@ def test_executor_llm_prompt_too_long_emits_error() -> None:
     events = _parse_sse(raw)
     err = next(d for t, d in events if t == "error")
     assert "too long" in err["message"].lower()
-    assert "50,000" in err["message"] or "50001" in err["message"] or "50,001" in err["message"]
+    assert "100,000" in err["message"] or "100000" in err["message"]
     assert events[-1][0] == "done"
 
 

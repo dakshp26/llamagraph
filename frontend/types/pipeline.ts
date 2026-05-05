@@ -10,7 +10,10 @@ export type NodeType =
   | "llm"
   | "output"
   | "json_api"
-  | "note";
+  | "note"
+  | "pdf_input"
+  | "docx_input"
+  | "ppt_input";
 
 export interface InputNodeData extends Record<string, unknown> {
   value: string;
@@ -57,6 +60,14 @@ export interface NoteNodeData extends Record<string, unknown> {
   text: string;
 }
 
+export interface FileInputNodeData extends Record<string, unknown> {
+  filename?: string;
+}
+
+export type PdfInputNodeData = FileInputNodeData;
+export type DocxInputNodeData = FileInputNodeData;
+export type PptInputNodeData = FileInputNodeData;
+
 export type FlowNodeData =
   | InputNodeData
   | PromptNodeData
@@ -65,7 +76,8 @@ export type FlowNodeData =
   | LLMNodeData
   | OutputNodeData
   | JsonApiNodeData
-  | NoteNodeData;
+  | NoteNodeData
+  | FileInputNodeData;
 
 export type FlowNode = Node<FlowNodeData, NodeType>;
 
@@ -129,6 +141,10 @@ export function defaultNodeData(type: NodeType): FlowNodeData {
       return { url: "", params: [], headers: [] };
     case "note":
       return { text: "" };
+    case "pdf_input":
+    case "docx_input":
+    case "ppt_input":
+      return { filename: "" };
   }
 }
 

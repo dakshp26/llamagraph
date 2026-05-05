@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.routers import files as files_router
 from backend.routers import ollama as ollama_router
 from backend.routers import pipeline as pipeline_router
 
@@ -8,6 +9,7 @@ app = FastAPI(title="LlamaGraph Backend")
 
 app.include_router(ollama_router.router, prefix="/ollama")
 app.include_router(pipeline_router.router, prefix="/pipeline")
+app.include_router(files_router.router, prefix="/files")
 
 app.add_middleware(
     CORSMiddleware,

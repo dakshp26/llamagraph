@@ -54,7 +54,7 @@ def test_post_pipeline_validate_no_input() -> None:
     assert r.status_code == 200
     data = r.json()
     assert data["valid"] is False
-    assert any("input" in e["message"].lower() for e in data["errors"])
+    assert any("source" in e["message"].lower() for e in data["errors"])
 
 
 def test_post_pipeline_validate_prompt_placeholder() -> None:

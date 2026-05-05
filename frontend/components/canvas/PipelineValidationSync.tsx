@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
-import { getOllamaHealth, validatePipeline } from "@/lib/api";
+import { getOllamaHealth, getOllamaModels, validatePipeline } from "@/lib/api";
 import { usePipelineStore } from "@/store/pipelineStore";
+import { useExecutionStore } from "@/store/executionStore";
 import { useValidationStore } from "@/store/validationStore";
 import { toGraphPayload } from "@/types/pipeline";
 
@@ -17,11 +18,20 @@ export function PipelineValidationSync() {
   const setOllamaOnline = useValidationStore((s) => s.setOllamaOnline);
 
   useEffect(() => {
-    const tick = () => {
-      void getOllamaHealth().then((r) => setOllamaOnline(r.running));
+    const tick = async () => {
+      const health = await getOllamaHealth();
+      setOllamaOnline(health.running);
+      if (health.running) {
+        try {
+          const { models } = await getOllamaModels();
+          useExecutionStore.getState().setOllamaModels(models);
+        } catch {
+          // leave existing model list in place if the fetch fails
+        }
+      }
     };
-    tick();
-    const id = window.setInterval(tick, OLLAMA_POLL_MS);
+    void tick();
+    const id = window.setInterval(() => void tick(), OLLAMA_POLL_MS);
     return () => window.clearInterval(id);
   }, [setOllamaOnline]);
 

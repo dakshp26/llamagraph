@@ -5,9 +5,11 @@ The execute_pipeline loop never needs to change.
 """
 from __future__ import annotations
 
+import asyncio
 import inspect
 import ipaddress
 import urllib.parse
+from pathlib import Path
 from collections.abc import AsyncIterator
 
 import httpx
@@ -29,6 +31,7 @@ from backend.services.pipeline_utils import (
     _resolve_prompt_template,
     sse_event,
 )
+from backend.services.file_converter import convert_file_to_markdown
 from backend.services.transform_ops import apply_transform_template, extract_json_field
 
 
@@ -228,6 +231,50 @@ async def _handle_json_api(ctx: HandlerCtx) -> None:
     ctx.context[nid] = body
 
 
+async def _handle_file_input_base(ctx: HandlerCtx, accepted_ext: set[str]) -> None:
+    filename = str(ctx.node.data.get("filename") or "").strip()
+    if not filename:
+        ctx.result.fatal_error = "No file selected. Choose a file in the node."
+        return
+    ext = Path(filename).suffix.lower()
+    if ext not in accepted_ext:
+        ctx.result.fatal_error = (
+            f"Unsupported file type '{ext}'. Expected: {', '.join(sorted(accepted_ext))}"
+        )
+        return
+    try:
+        markdown = await asyncio.to_thread(convert_file_to_markdown, filename)
+    except ValueError:
+        ctx.result.fatal_error = f"Invalid filename: {filename!r}"
+        return
+    except FileNotFoundError:
+        ctx.result.fatal_error = (
+            f"File '{filename}' not found in backend/files/. "
+            "Upload it first or check the filename."
+        )
+        return
+    except Exception:
+        ctx.result.fatal_error = (
+            f"Failed to convert '{filename}'. "
+            "The file may be corrupted or in an unsupported format."
+        )
+        return
+    ctx.context[ctx.node.id] = markdown
+    ctx.result.input_snapshot = filename
+
+
+async def _handle_pdf_input(ctx: HandlerCtx) -> None:
+    await _handle_file_input_base(ctx, {".pdf"})
+
+
+async def _handle_docx_input(ctx: HandlerCtx) -> None:
+    await _handle_file_input_base(ctx, {".docx"})
+
+
+async def _handle_ppt_input(ctx: HandlerCtx) -> None:
+    await _handle_file_input_base(ctx, {".ppt", ".pptx"})
+
+
 async def _handle_output(ctx: HandlerCtx) -> None:
     nid = ctx.node.id
     up = _assemble_from_incoming(nid, ctx.edges, ctx.context, ctx.order, ctx.skipped)
@@ -254,6 +301,9 @@ NODE_HANDLERS: dict[str, Any] = {
     "llm": _handle_llm,
     "output": _handle_output,
     "json_api": _handle_json_api,
+    "pdf_input": _handle_pdf_input,
+    "docx_input": _handle_docx_input,
+    "ppt_input": _handle_ppt_input,
 }
 
 _FALLBACK_HANDLER = _handle_fallback

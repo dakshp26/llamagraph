@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ChangeEventHandler } from "react";
+import { useRef, type ChangeEventHandler } from "react";
 
-import { getOllamaModels } from "@/lib/api";
 import { runPipeline } from "@/lib/sseClient";
 import { loadPipelineFile, savePipeline } from "@/lib/pipelineFile";
 import { useExecutionStore, type NodeRunStatus } from "@/store/executionStore";
@@ -31,10 +30,6 @@ export function TopBar() {
   const graphValid = useValidationStore((s) => s.graphValid);
 
   const canRun = status !== "running" && graphValid && ollamaOnline;
-
-  useEffect(() => {
-    void getOllamaModels().then((r) => useExecutionStore.getState().setOllamaModels(r.models));
-  }, []);
 
   const handleRun = async () => {
     const graph = toGraphPayload(
